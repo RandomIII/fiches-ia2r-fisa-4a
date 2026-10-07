@@ -313,9 +313,9 @@
       if (modal.open) modal.close();
       M = null;
       $('#tabs').hidden = true;
-      $('#brand-title').textContent = 'Révisions';
-      $('#brand-sub').textContent = 'Polytech 4A';
-      document.title = 'Révisions Polytech 4A';
+      $('#brand-title').textContent = 'Fiches IA2R';
+      $('#brand-sub').textContent = 'FISA · 4A · Polytech Nancy';
+      document.title = 'Fiches IA2R FISA 4A';
       renderHome(); show('home');
       return;
     }
@@ -325,7 +325,7 @@
     document.querySelectorAll('#tabs a').forEach(a => { a.href = `#/${m.id}` + (a.dataset.tab === 'fiches' ? '' : '/' + a.dataset.tab); });
     $('#brand-title').textContent = m.nom;
     $('#brand-sub').textContent = '← Toutes les matières';
-    document.title = m.nom + ' — Révisions';
+    document.title = m.nom + ' — Fiches IA2R';
     const view = page === 'qcm' ? 'qcm' : page === 'lexique' ? 'lexique' : 'fiches';
     show(view);
     if (page === 'f' && fid) openFiche(fid);
