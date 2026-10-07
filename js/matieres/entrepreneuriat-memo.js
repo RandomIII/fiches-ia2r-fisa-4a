@@ -31,12 +31,19 @@ ${table(['', 'Coûts fixes (CF)', 'Coûts variables (CV)'], [
 ${F(R`Coût total $= CF + c_v \times Q$&emsp;($c_v$ = coût variable par pièce)`)}
 <p>Un gros coût fixe ne devient rentable que si on produit <b>beaucoup</b> : il est alors réparti sur beaucoup de pièces.</p>
 `)}
+${EX('Exemple : boulangerie', R`CF : loyer 2 000 €/mois, salaire du gérant, assurance, four (amorti). CV : farine, beurre, électricité du four, sachets ≈ 0,30 €/baguette. 10 000 baguettes/mois → coût total = CF + 0,30 × 10 000 = CF + 3 000 €.`)}
 ${S('Faire ou faire faire (make or buy)', R`
 <p>Option A : <b>sous-traiter</b> (pas de coût fixe, coût par pièce élevé). Option B : <b>internaliser</b> (investir, puis coût par pièce plus faible).</p>
 ${F(R`Seuil d'indifférence : $Q^* = \dfrac{CF}{CV_{ext} - CV_{int}}$`)}
 <p>$Q^*$ = volume <b>annuel</b> où les deux options coûtent pareil. $CV_{ext} - CV_{int}$ = économie par pièce en internalisant ; $Q^*$ = nombre de pièces pour rembourser l'investissement.</p>
 ${K(R`Volume prévu $\lt Q^*$ → <b>sous-traiter</b> ; volume prévu $\gt Q^*$ → <b>internaliser</b>.<br>Cours : $\frac{300\,000}{45-20} = 12\,000$ pièces/an.`)}
 ${M.makeOrBuyPlot('Coût total des deux options ; croisement en Q* = 12 000')}
+`)}
+${S('Exemples réels : faire ou faire faire', R`
+<ul><li><b>Apple</b> fait assembler ses iPhone par Foxconn (gros volumes, pas son cœur de métier) mais <b>conçoit ses puces</b> (cœur de métier, différenciation).</li>
+<li><b>Tesla</b> internalise batteries et logiciel : pièces stratégiques, qualité maîtrisée.</li>
+<li>Une <b>start-up</b> au marché incertain sous-traite pour ne pas immobiliser de capital (flexibilité).</li>
+<li><b>Pénurie de puces 2021</b> : des constructeurs auto dépendants de quelques fournisseurs ont dû arrêter des usines (critère « dépendance »).</li></ul>
 `)}
 ${S('Grille d’arbitrage (hors calcul)', R`
 ${table(['Critère', 'Question', 'Penche vers'], [
@@ -64,6 +71,16 @@ ${table(['Case', 'Définition', 'Exemple'], [
 ])}
 `)}
 ${ABBR('CF', 'CV', 'CVext', 'CVint', 'Q*', 'SWOT', 'SO', 'ST', 'WO', 'WT', 'R&D', 'UE', 'k€')}
+${S('Exemples de SWOT express', R`
+${table(['Entreprise', 'Élément', 'Case'], [
+  ['Dyson', 'brevets sur ses moteurs', 'Force (difficile à copier)'],
+  ['Nokia (2008)', 'logiciel de smartphone en retard', 'Faiblesse'],
+  ['Zoom (2020)', 'généralisation du télétravail', 'Opportunité'],
+  ['Taxis', 'arrivée d’Uber', 'Menace'],
+  ['Kodak', 'passage à la photo numérique', 'Menace (ignorée → faillite)'],
+  ['Netflix', 'catalogue de séries originales', 'Force']
+])}
+`)}
 ${S('Marche à suivre et croisements', R`
 <ol><li><b>Brainstorming</b> : tout lister sans classer.</li><li><b>Classer</b> par impact.</li><li><b>Croiser</b> un interne + un externe → une question → une <b>action</b>. Diagnostic → stratégie claire.</li></ol>
 ${table(['', 'Nom', 'Question'], [
@@ -106,6 +123,26 @@ ${EX('Bonus WO', R`pas de commercial × croissance du marché → recruter un pr
 ${S('Étude de cas : restaurant bio, Nancy (corrigé)', R`
 ${swot('• équipe compétente<br>• concept clair « 100 % bio »', '• loyer élevé (hyper-centre)<br>• matières bio chères<br>• trésorerie / capital faibles', '• marché du bio en croissance<br>• peu de concurrence<br>• aides publiques', '• hausse des prix du bio<br>• crise économique<br>• arrivée d’une chaîne')}
 <p>SO : capter la demande bio avec une formule midi pour les bureaux du centre. WT : contrats annuels avec des producteurs locaux pour bloquer les prix.</p>
+`)}
+${S('Exo : classer un SWOT (trottinettes en libre-service)', R`
+${table(['Élément', 'Case', 'Pourquoi'], [
+  ['flotte de 5 000 trottinettes déjà déployée', 'Force', 'interne, avance sur les concurrents'],
+  ['application très bien notée', 'Force', 'interne, expérience client'],
+  ['taux de vol et de casse élevé', 'Faiblesse', 'interne, on peut agir (antivol, maintenance)'],
+  ['trésorerie limitée', 'Faiblesse', 'interne'],
+  ['villes qui construisent des pistes cyclables', 'Opportunité', 'externe, favorable'],
+  ['hausse du prix de l’essence', 'Opportunité', 'externe, pousse vers la micro-mobilité'],
+  ['interdiction du libre-service (Paris, 2023)', 'Menace', 'externe, réglementaire'],
+  ['concurrence des vélos en libre-service', 'Menace', 'externe']
+])}
+<p><b>SO</b> : flotte déployée × pistes cyclables → s'implanter en priorité dans les villes qui investissent. <b>WT</b> : casse × interdictions → basculer vers la location longue durée aux particuliers et entreprises.</p>
+`)}
+${S('Exo : coût unitaire selon le volume', R`
+<p>Interne : coût par pièce $= \frac{300\,000}{Q} + 20$ ; sous-traitance : toujours 45 €.</p>
+${table(['Volume Q', 'Coût unitaire interne', 'Choix'], [
+  ['5 000', '60 + 20 = 80 €', 'sous-traiter (45 €)'], ['12 000', '25 + 20 = 45 €', 'indifférent'], ['30 000', '10 + 20 = 30 €', 'internaliser']
+])}
+<p>Plus on produit, plus le coût fixe est « dilué » : ce sont les <b>économies d'échelle</b>.</p>
 `)}
 ${P(R`classer une tendance du marché en <b>force</b> (c'est une opportunité) · classer l'emplacement choisi en <b>menace</b> (c'est interne) · action vague (« communiquer plus ») · oublier de comparer le volume prévu à $Q^*$ · inverser le choix (sous le seuil on sous-traite).`)}
 `
@@ -152,6 +189,20 @@ ${table(['Ciblage', 'Principe', 'Exemple'], [['Indifférencié', 'un seul produi
 ${K(R`<b>Phrase de positionnement</b> : « Pour [cible], [produit] est le seul [catégorie] qui [bénéfice clé], contrairement à [concurrent]. »<br><b>Carte perceptive</b> : placer les concurrents sur 2 axes (ex. prix × qualité perçue) et viser une case libre et désirable.`)}
 `)}
 ${ABBR('MKT', 'B2B', 'B2C', 'D2C', 'CRM', 'IA')}
+${S('Exemples par notion', R`
+${table(['Notion', 'Exemple'], [
+  ['Marketing de contenu', 'Guide Michelin : créé par un fabricant de pneus pour donner envie de rouler'],
+  ['Influence', 'Daniel Wellington : montres lancées via des influenceurs Instagram'],
+  ['Relationnel', 'carte de fidélité Sephora, programme Amazon Prime'],
+  ['Segment géographique', 'menus McDonald’s différents selon les pays'],
+  ['Segment démographique', 'Disney cible les familles avec enfants'],
+  ['Segment psychographique', 'Patagonia : clients sensibles à l’écologie'],
+  ['Segment comportemental', 'forfaits mobiles pour gros consommateurs de data'],
+  ['Positionnement', 'Dacia « l’essentiel au juste prix » · Tesla « tech premium » · Decathlon « sport accessible »'],
+  ['Distribution', 'Nespresso : boutiques + site pour contrôler l’expérience'],
+  ['Promotion', 'keynotes Apple (relations publiques), sponsoring sportif']
+])}
+`)}
 ${S('Comportement du consommateur', R`
 <p>Pourquoi on achète : 4 familles de facteurs.</p>
 ${table(['Facteurs', 'Contenu', 'Exemple'], [
@@ -204,6 +255,16 @@ ${S('Exo : fidéliser le client (livrable)', R`
 ${S('Exo : segmenter un marché (vélos électriques)', R`
 <p>Géographique : urbain / rural. Démographique : 25–40 ans actifs / seniors. Psychographique : écologistes / sportifs. Comportemental : trajet domicile-travail quotidien / loisir le week-end. → cible possible : actifs urbains qui font des trajets quotidiens (vélo léger, antivol, abonnement d'entretien).</p>
 `)}
+${S('Exo : carte perceptive (automobile)', R`
+${table(['Marque', 'Prix', 'Image'], [
+  ['Dacia', 'bas', 'fonctionnelle, fiable'], ['Toyota', 'moyen', 'fiable, hybride'],
+  ['BMW', 'élevé', 'sportive, premium'], ['Tesla', 'élevé', 'innovante, tech']
+])}
+<p>Case peu occupée : <b>électrique abordable</b> → positionnement possible pour un nouvel entrant (c'est la stratégie de BYD ou de la Dacia Spring).</p>
+`)}
+${S('Exo : lire un slogan', R`
+<p>« Just do it » (Nike) → dépassement de soi : facteur <b>psychologique</b>. « Parce que vous le valez bien » (L'Oréal) → estime de soi : <b>psychologique</b>. « Venez comme vous êtes » (McDonald's) → accessible à tous : positionnement <b>grand public</b>, ciblage plutôt indifférencié.</p>
+`)}
 ${P(R`confondre marketing et pub · 4P incohérents (premium vendu en promo permanente) · confondre segmentation (analyse), ciblage (choix) et positionnement (image) · « social » (les autres) ≠ « culturel » (la société) · un prix bas n'est pas forcément « volume » s'il n'y a pas de gros volumes.`)}
 `
   ]
@@ -228,6 +289,7 @@ ${table(['', 'Micro / EI', 'SAS / SASU', 'SARL / EURL'], [
 ])}
 <p>Consulter une entreprise : <b>pappers.fr</b>, <b>societe.com</b>.</p>
 `)}
+${EX('Exemples de statuts', R`graphiste freelance, chauffeur VTC → <b>micro-entreprise</b> ; start-ups qui lèvent des fonds (BlaBlaCar, Doctolib) → <b>SAS</b> ; boulangerie familiale, artisan → <b>SARL / EURL</b>.`)}
 ${S('Impôts', R`
 ${F(R`IS $= 15\,\%\times\min(B, 42\,500) + 25\,\%\times(B - 42\,500)^+$`)}
 <p>IR : payé par l'entrepreneur sur ses revenus. IS : payé par la société sur son bénéfice. En société, option IR possible 5 ans. CA &lt; 37 500 € : exonération (franchise). Dividendes taxés ≈ 31 %.</p>
@@ -250,10 +312,18 @@ ${F(R`BFR = créances clients − dettes fournisseurs (+ stocks)`)}
 Cours : CA 100 k€/mois à 60 j → 200 k€ ; fournisseurs 60 k€ à 30 j → 60 k€ ; <b>BFR = 140 k€</b>.<br>
 Réduire : clients payés plus vite (acomptes), fournisseurs payés plus tard, moins de stock.</p>
 `)}
+${S('BFR selon le secteur', R`
+${table(['Secteur', 'BFR', 'Pourquoi'], [
+  ['supermarché', '<b>négatif</b>', 'clients paient comptant, fournisseurs à 60 j : les fournisseurs financent le magasin'],
+  ['industrie, BTP', 'élevé', 'clients à 60–90 j + stocks importants'],
+  ['logiciel par abonnement payé d’avance', 'faible ou négatif', 'encaissé avant de rendre le service']
+])}
+`)}
 ${S('Burn rate et runway', R`
 ${F(R`runway (mois) $= \dfrac{\text{trésorerie}}{\text{burn rate (€/mois)}}$`)}
 <p>Burn rate : rythme auquel une entreprise <b>pas encore rentable</b> consomme sa trésorerie. Les investisseurs le regardent plus que le résultat comptable : il dit combien de temps il reste avant de manquer de cash.</p>
 `)}
+${EX('Exemple de burn', R`start-up de 10 salariés à 5 k€ chargés + loyer et outils 10 k€ = 60 k€ de dépenses/mois ; CA 20 k€/mois → burn = 40 k€/mois.`)}
 ${S('Décoder les phrases', R`
 <p>« CA +12 %, marge brute −3 points » → vend plus mais gagne moins par vente. « EBE de 18 %, confortable pour le secteur » → bonne rentabilité vs concurrents. « Résultat positif mais trésorerie asséchée par le BFR » → rentable mais cash bloqué (clients pas encore payés, fournisseurs déjà payés). « Investisseurs → burn rate » → pas rentable, la question est le temps restant.</p>
 `)}
@@ -316,6 +386,15 @@ ${S('Exo : runway et décision', R`
 `)}
 ${S('Exo : lettre aux investisseurs (plan)', R`
 <ol><li><b>Problème</b> (besoin réel, chiffré)</li><li><b>Solution</b> et produit</li><li><b>Marché</b> : taille, croissance (opportunités du SWOT)</li><li><b>Avantage concurrentiel</b> (forces du SWOT)</li><li><b>Modèle économique</b> (4P, prix)</li><li><b>Équipe</b></li><li><b>Chiffres</b> : CA visé, marge, burn rate, runway</li><li><b>Montant demandé</b> et usage des fonds</li></ol>
+`)}
+${S('Exo : BFR négatif (supermarché)', R`
+<p>CA 1 M€/mois payé comptant → créances = 0. Achats 700 k€/mois payés à 60 j → dettes = 1,4 M€. BFR $= 0 - 1{,}4 = -1{,}4$ M€ : le cycle d'exploitation <b>rapporte</b> de la trésorerie au lieu d'en consommer.</p>
+`)}
+${S('Exo : « −3 points de marge »', R`
+<p>CA 2 M€ → 2,24 M€ (+12 %), taux de marge 40 % → 37 %. Marge brute : 800 k€ → 828,8 k€ : elle <b>augmente en euros</b> (+3,6 %) mais le <b>taux</b> perd 3 points (−7,5 % en relatif). On vend plus, mais chaque vente rapporte moins.</p>
+`)}
+${S('Exo : burn rate et runway d’une start-up', R`
+<p>10 salariés × 5 k€ + loyer/outils 10 k€ − CA 20 k€ = burn 40 k€/mois. Trésorerie 480 k€ → runway = 12 mois. Pour passer à 18 mois : réduire le burn à 26,7 k€/mois, ou lever ≈ 240 k€.</p>
 `)}
 ${P(R`résultat ≠ trésorerie · BFR = créances − dettes (pas l'inverse) · « points » ≠ % · IS par tranches (pas 25 % sur tout) · micro = responsabilité illimitée · le taux se calcule toujours sur le CA.`)}
 `

@@ -78,6 +78,9 @@ ${table(['Convolution', 'Résultat'], [
   ['$x*\\sum_k c_k\\delta(t-t_k)$', '$\\sum_k c_k\\,x(t-t_k)$ (copies)']
 ])}
 `)}
+${S('Dans la vraie vie', R`
+<p>Le <b>la</b> du diapason : $\cos(2\pi\,440\,t)$. Le <b>secteur</b> : $325\cos(100\pi t)$ (230 V efficaces, 50 Hz). Une <b>note de guitare</b> = fondamental + harmoniques (série de Fourier) : les harmoniques font le timbre. Un <b>égaliseur</b> audio multiplie le spectre par $H(f)$. La <b>réverbération</b> d'une salle = convolution par sa réponse impulsionnelle (un clap de mains ≈ un Dirac).</p>
+`)}
 ${S('Euler & trigo', R`
 ${F(R`$\cos\theta = \frac{e^{j\theta}+e^{-j\theta}}2$&emsp;$\sin\theta = \frac{e^{j\theta}-e^{-j\theta}}{2j}$`)}
 <p>$\cos a\cos b = \frac12[\cos(a\!-\!b)+\cos(a\!+\!b)]$ · $\sin a\sin b = \frac12[\cos(a\!-\!b)-\cos(a\!+\!b)]$ · $\sin a\cos b = \frac12[\sin(a\!+\!b)+\sin(a\!-\!b)]$ · $\cos^2a = \frac{1+\cos2a}2$ · $\sin\theta = \cos(\theta-\frac\pi2)$ · $|e^{j\theta}| = 1$.</p>
@@ -288,6 +291,9 @@ ${table(['Bloc', 'Rôle'], [
   ['traitement numérique', 'sur la suite $x(n) = x(nT_e)$'], ['interpolateur', 'Shannon (idéal) ou BOZ (réel) → signal continu']
 ])}
 `)}
+${S('Dans la vraie vie', R`
+<p>Au cinéma (24 images/s), les <b>roues semblent tourner lentement ou à l'envers</b>, les pales d'hélicoptère paraissent immobiles : c'est du <b>repliement</b> temporel. Le <b>téléphone</b> échantillonne la voix à 8 kHz (bande ≤ 4 kHz : voix « étouffée »). L'audio <b>hi-res</b> monte à 96 kHz. Le <b>moiré</b> sur une photo de chemise rayée = repliement spatial.</p>
+`)}
 ${S('Son numérique', R`
 ${F(R`Débit $= f_e\times\text{bits}\times\text{canaux}$ ; taille (octets) = débit × durée / 8`)}
 <p>CD : $44\,100\times16\times2 = 1411{,}2$ kbit/s (mono : 705,6) ; 16 bits → $2^{16} = 65\,536$ niveaux ; 1 min ≈ 10,6 Mo. <b>MP3</b> : compression <b>avec perte</b> (retire l'inaudible), <b>même $f_e$</b>, débit 128–320 kbit/s, pertes sur attaques / percussions / aigus.</p>
@@ -454,6 +460,9 @@ ${F(R`$X[k] = \sum_{n=0}^{N-1}x[n]e^{-j2\pi nk/N}$, \ $f_k = k\frac{f_e}N$, \ $\
 <p>TFD = TFtd d'un bloc de $N$ points échantillonnée sur $N$ fréquences. Temps <b>et</b> fréquence discrets et périodiques ($N$). $k\gt\frac N2$ ↔ fréquences négatives. $f_e$ fixe la bande, $N$ (durée $NT_e$) la résolution. <b>FFT</b> = même résultat, $\frac N2\log_2N$ opérations au lieu de $N^2$ (1024 pts : 5 120 vs $10^6$, ×205). Matlab : ${c`X(k+1)`} ↔ $kF_e/N$.</p>
 ${table(['Outil', 'Temps', 'Fréquence'], [['Série F.', 'continu périodique', 'raies'], ['TF', 'continu', 'continue'], ['TFtd', 'discret', 'continue périodique'], ['TFD', 'discret N pts', 'discrète N pts']])}
 <p><b>Périodique dans un domaine ⟺ discret dans l'autre.</b></p>
+`)}
+${S('Dans la vraie vie', R`
+<p><b>Moyenne glissante</b> d'un cours de bourse = passe-bas (lisse les variations). <b>Différence</b> $x(n) - x(n-1)$ = détection de variations (contours dans une image). <b>Écho</b> : $y(n) = x(n) + a\,x(n-D)$ (RIF) ; <b>réverbération</b> : $y(n) = x(n) + a\,y(n-D)$ (RII, stable si $|a|\lt1$). <b>Shazam</b>, les accordeurs et les égaliseurs utilisent la <b>FFT</b> ; JPEG et MP3 une transformée proche (DCT).</p>
 `)}
 ${S('Filtres numériques', R`
 ${F(R`$y(n) = \sum_{k=0}^Mb_kx(n-k) - \sum_{k=1}^Na_ky(n-k)$&emsp;$H(z) = \frac{\sum b_kz^{-k}}{1+\sum a_kz^{-k}}$`)}
