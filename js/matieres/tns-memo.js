@@ -54,7 +54,7 @@ ${F(R`$A\cos(2\pi f_0t+\varphi)$ : $T_0 = \frac1{f_0}$, $\omega_0 = 2\pi f_0$ ; 
 <p>Ex. $\cos(8000\pi t)$ → 4 kHz ; $\cos(40\pi t)$ → 20 Hz ; $3\cos(100\pi t+\frac\pi4)$ → 50 Hz.</p>
 `)}
 ${S('Dirac : propriétés', R`
-${F(R`$x(t)\delta(t-t_0) = x(t_0)\delta(t-t_0)$ \quad $x(t)*\delta(t-t_0) = x(t-t_0)$`)}
+${F(R`$x(t)\delta(t-t_0) = x(t_0)\delta(t-t_0)$&emsp;$x(t)*\delta(t-t_0) = x(t-t_0)$`)}
 <p>$\int x(t)\delta(t-t_0)dt = x(t_0)$ · $\delta(at) = \frac{\delta(t)}{|a|}$ · $\delta(-t)=\delta(t)$ · $\delta(t-a)*\delta(t-b) = \delta(t-a-b)$ · $\delta \xrightarrow{\mathcal F} 1$ (toutes les fréquences).</p>
 `)}
 ${S('Opérations sur le temps', R`
@@ -79,7 +79,7 @@ ${table(['Convolution', 'Résultat'], [
 ])}
 `)}
 ${S('Euler & trigo', R`
-${F(R`$\cos\theta = \frac{e^{j\theta}+e^{-j\theta}}2$ \quad $\sin\theta = \frac{e^{j\theta}-e^{-j\theta}}{2j}$`)}
+${F(R`$\cos\theta = \frac{e^{j\theta}+e^{-j\theta}}2$&emsp;$\sin\theta = \frac{e^{j\theta}-e^{-j\theta}}{2j}$`)}
 <p>$\cos a\cos b = \frac12[\cos(a\!-\!b)+\cos(a\!+\!b)]$ · $\sin a\sin b = \frac12[\cos(a\!-\!b)-\cos(a\!+\!b)]$ · $\sin a\cos b = \frac12[\sin(a\!+\!b)+\sin(a\!-\!b)]$ · $\cos^2a = \frac{1+\cos2a}2$ · $\sin\theta = \cos(\theta-\frac\pi2)$ · $|e^{j\theta}| = 1$.</p>
 `)}
 ${S('Séries de Fourier (signal périodique)', R`
@@ -140,7 +140,7 @@ ${plots(
 `)}
 ${S('Astuce : dériver pour calculer une TF', R`
 <p>Un signal fait de morceaux droits devient, une fois dérivé, des portes ; dérivé deux fois, des Dirac. Or $x' \to j2\pi f X$ :</p>
-${F(R`$X(f) = \dfrac{\mathcal F\{x''\}}{(j2\pi f)^2}$ \quad ex. $\mathrm{triang}'' = \delta(t+1) - 2\delta(t) + \delta(t-1)$`)}
+${F(R`$X(f) = \dfrac{\mathcal F\{x''\}}{(j2\pi f)^2}$&emsp;ex. $\mathrm{triang}'' = \delta(t+1) - 2\delta(t) + \delta(t-1)$`)}
 <p>→ $\mathcal F = e^{j2\pi f} - 2 + e^{-j2\pi f} = 2\cos2\pi f - 2 = -4\sin^2\pi f$ → $X = \frac{-4\sin^2\pi f}{-4\pi^2f^2} = \mathrm{sinc}^2(f)$ ✓. Porte : $\mathrm{rect}' = \delta(t+\frac12) - \delta(t-\frac12)$.</p>
 `)}
 ${S('Somme de sinusoïdes', R`
@@ -421,10 +421,10 @@ R`
 ${S('Suites (signaux à temps discret)', R`
 <p>$x : \mathbb Z\to\mathbb R$ ; $x(n) = x_a(nT_e)$ ou suite intrinsèque. Rien entre deux indices. Notation $\{\ldots,2,\underset\uparrow{-1},3\}$ (flèche = $n=0$).</p>
 ${table(['Suite', 'Définition'], [['$\\delta(n)$', '1 en $n=0$, 0 ailleurs (vraie valeur 1)'], ['$u(n)$', '1 si $n\\ge0$'], ['$r(n)$', '$n\\,u(n)$'], ['$a^nu(n)$', '$|a|\\lt1$ décroît, $|a|\\gt1$ explose, $a\\lt0$ alterne']])}
-${F(R`$x(n) = \sum_k x(k)\,\delta(n-k)$ \quad $x(n)\delta(n-n_0) = x(n_0)\delta(n-n_0)$`)}
+${F(R`$x(n) = \sum_k x(k)\,\delta(n-k)$&emsp;$x(n)\delta(n-n_0) = x(n_0)\delta(n-n_0)$`)}
 `)}
 ${S('Énergie, puissance, séries géométriques', R`
-${F(R`$\sum_{k=0}^{N-1}q^k = \frac{1-q^N}{1-q}$ \quad $\sum_{k=0}^{\infty}q^k = \frac1{1-q}$ \quad $\sum_{k=1}^{\infty}q^k = \frac q{1-q}$ ($|q|\lt1$)`)}
+${F(R`$\sum_{k=0}^{N-1}q^k = \frac{1-q^N}{1-q}$&emsp;$\sum_{k=0}^{\infty}q^k = \frac1{1-q}$&emsp;$\sum_{k=1}^{\infty}q^k = \frac q{1-q}$ ($|q|\lt1$)`)}
 <p>$E = \sum|x(n)|^2$ ; $P = \lim\frac1{2N+1}\sum_{-N}^N|x|^2$ ; périodique : $P = \frac1{N_0}\sum_0^{N_0-1}|x|^2$, $E = \infty$.<br>$a^nu(n)$ : $E = \frac1{1-|a|^2}$ ; $a^{|n|}$ : $E = \frac{1+a^2}{1-a^2}$.</p>
 `)}
 ${S('Opérations', R`
@@ -456,11 +456,11 @@ ${table(['Outil', 'Temps', 'Fréquence'], [['Série F.', 'continu périodique', 
 <p><b>Périodique dans un domaine ⟺ discret dans l'autre.</b></p>
 `)}
 ${S('Filtres numériques', R`
-${F(R`$y(n) = \sum_{k=0}^Mb_kx(n-k) - \sum_{k=1}^Na_ky(n-k)$ \quad $H(z) = \frac{\sum b_kz^{-k}}{1+\sum a_kz^{-k}}$`)}
+${F(R`$y(n) = \sum_{k=0}^Mb_kx(n-k) - \sum_{k=1}^Na_ky(n-k)$&emsp;$H(z) = \frac{\sum b_kz^{-k}}{1+\sum a_kz^{-k}}$`)}
 <p><b>$h(n)$</b> = sortie pour $\delta(n)$, caractérise tout : $y = x*h$. <b>Indicielle</b> $s(n) = \sum_{k\le n}h(k)$ → limite $H(1)$.<br>
 <b>Transformée en Z</b> $X(z) = \sum x(n)z^{-n}$ : $x(n-k)\to z^{-k}X$, $x*h\to XH$, $\delta\to1$, $u\to\frac1{1-z^{-1}}$, $a^nu\to\frac1{1-az^{-1}} = \frac z{z-a}$.<br>
 <b>Pôles</b> = racines du dénominateur, <b>zéros</b> = du numérateur (écrire en puissances positives de $z$).</p>
-${F(R`$H(f) = H(z)\big|_{z = e^{j\theta}}$ \quad <b>stable</b> (causal) $\iff$ tous les pôles $|p_i|\lt1$`)}
+${F(R`$H(f) = H(z)\big|_{z = e^{j\theta}}$&emsp;<b>stable</b> (causal) $\iff$ tous les pôles $|p_i|\lt1$`)}
 <p>Zéros : aucun rôle pour la stabilité ; zéro sur le cercle en $e^{j\theta_0}$ → $|H(f_0)| = 0$. Pôle près du cercle → pic de gain, réponse lente. $f = 0 \leftrightarrow z = 1$ ; $f = \frac{f_e}2 \leftrightarrow z = -1$.</p>
 ${table(['', 'RIF', 'RII'], [['équation', 'que des $x$', '$y$ passés (récursif)'], ['$h(n)$', 'finie = les $b_k$', 'infinie'], ['stabilité', 'toujours', 'pôles dans le cercle'], ['phase', 'peut être linéaire', 'non linéaire'], ['coût', 'beaucoup de coef.', 'peu de coef.']])}
 ${K(R`<b>Type</b> : comparer $|H(0)|$ et $|H(\frac{f_e}2)|$ (bas : grand/petit ; haut : petit/grand ; bande : petits aux deux bouts). <b>Coupure</b> −3 dB : $|H(f_c)| = \frac{|H|_{max}}{\sqrt2}$. <b>Astuce</b> : $1+e^{-j\theta} = 2e^{-j\theta/2}\cos\frac\theta2$ ; $1-e^{-j\theta} = 2je^{-j\theta/2}\sin\frac\theta2$.`)}

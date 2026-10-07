@@ -16,6 +16,7 @@ Liens partageables : `#/genie-logiciel` (fiches), `#/genie-logiciel/qcm`, `#/gen
 |---|---|
 | Génie Logiciel (Java & UML) | [`js/matieres/genie-logiciel.js`](js/matieres/genie-logiciel.js) |
 | Traitement numérique du signal (3 parties) | [`js/matieres/tns.js`](js/matieres/tns.js) |
+| Entrepreneuriat & gestion (3 parties) | [`js/matieres/entrepreneuriat.js`](js/matieres/entrepreneuriat.js) |
 
 ## Ajouter une matière
 

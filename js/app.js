@@ -389,7 +389,7 @@
         const right = cols.getBoundingClientRect().right + 2;
         return [...cols.children].some(e => e.getBoundingClientRect().right > right);
       };
-      let lo = 5.8, hi = 9.5;
+      let lo = 5.8, hi = (M && M.memoMaxPt) || 9.5;   // une matière peu fournie peut écrire plus gros
       for (let i = 0; i < 9; i++) {
         const mid = (lo + hi) / 2;
         sheet.style.fontSize = mid + 'pt';
