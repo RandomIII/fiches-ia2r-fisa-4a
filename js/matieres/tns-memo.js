@@ -471,6 +471,15 @@ ${plots(
   plot({ x: [-0.5, 7.5], y: [-1.1, 1.2], w: 140, h: 75, xl: 'n', stems: [{ n: [0, 1, 2, 3, 4, 5, 6, 7], v: [0, 1, 2, 3, 4, 5, 6, 7].map(n => Math.pow(-0.7, n)) }], cap: '(−0,7)ⁿ u(n) : alterne' })
 )}
 `)}
+${S('Table Z (unilatérale)', R`
+${table(['$x(n)$', '$X(z)$', 'ROC'], [
+  ['$\\delta(n-i)$', '$z^{-i}$', '$z\\ne0$'], ['$u(n)$', '$\\frac{z}{z-1}$', '$|z|\\gt1$'], ['$n\\,u(n)$', '$\\frac{z}{(z-1)^2}$', '$|z|\\gt1$'],
+  ['$a^nu(n)$', '$\\frac{z}{z-a}$', '$|z|\\gt|a|$'], ['$na^nu(n)$', '$\\frac{az}{(z-a)^2}$', '$|z|\\gt|a|$'],
+  ['$\\cos(\\omega_0n)u$', '$\\frac{z(z-\\cos\\omega_0)}{z^2-2z\\cos\\omega_0+1}$', '$|z|\\gt1$'],
+  ['$\\sin(\\omega_0n)u$', '$\\frac{z\\sin\\omega_0}{z^2-2z\\cos\\omega_0+1}$', '$|z|\\gt1$']
+])}
+<p>$x(n-1) \to z^{-1}X + x(-1)$ (au repos : $z^{-1}X$) · $nx(n) \to -z\frac{dX}{dz}$ · $\sum_0^nx(k) \to \frac{X}{1-z^{-1}}$ · <b>valeur initiale</b> $x(0) = \lim_{z\to\infty}X$ · <b>valeur finale</b> $\lim x(n) = \lim_{z\to1}(z-1)X(z)$. ROC : sans pôle ; durée finie → tout le plan.</p>
+`)}
 ${S('Systèmes discrets : propriétés', R`
 ${table(['Propriété', 'Condition sur $h(n)$ / $H(z)$'], [
   ['linéaire invariant', '$y = x*h$'], ['causal', '$h(n) = 0$ pour $n\\lt0$ (n’utilise pas $x(n+1)$…)'],

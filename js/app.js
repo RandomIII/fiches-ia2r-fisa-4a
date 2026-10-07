@@ -82,6 +82,9 @@
   function renderParties() {
     $('#parties-title').textContent = M.nom;
     $('#parties-desc').textContent = M.description || '';
+    // Documents fournis par l'enseignant (tables...) : téléchargement direct + lien vers la fiche qui les reprend.
+    $('#ressources').innerHTML = (M.ressources || []).map(r =>
+      `<span class="ressource"><a class="btn ok" href="${r.href}" download>⬇ ${esc(r.titre)}</a>${r.fiche ? `<a class="btn" href="#/${M.id}/tout/f/${r.fiche}">voir la fiche</a>` : ''}</span>`).join('');
     const card = (k, titre, desc, color) => {
       const fiches = M.fiches.filter(f => k === 'tout' || (f.tps || []).includes(k));
       const qs = M.qcm.filter(x => k === 'tout' || (x.tps || []).includes(k));

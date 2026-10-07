@@ -251,7 +251,8 @@ ${table(['Signal $x(t)$', 'TF $X(f)$'], [
   ['$\\sum_k \\delta(t-kT)$', '$\\frac1T\\sum_n \\delta(f - \\frac nT)$']
 ])}
 ${retenir(R`<p>Logique de <b>dualité</b> : $\delta \leftrightarrow 1$ et $1 \leftrightarrow \delta$ ; $\mathrm{rect} \leftrightarrow \mathrm{sinc}$ et $\mathrm{sinc} \leftrightarrow \mathrm{rect}$. Un peigne donne un peigne (de période inverse).</p>`)}
-<p>Convention du cours : $\mathrm{sinc}(x) = \dfrac{\sin(\pi x)}{\pi x}$.</p>
+<p>Convention du cours : $\mathrm{sinc}(x) = \dfrac{\sin(\pi x)}{\pi x}$, $\mathrm{rect}(t) = 1$ pour $|t| \le \frac12$, $\mathrm{triang}(t) = \max(1-|t|, 0)$.</p>
+<p><a class="btn" href="pdf/tables/table-TF.pdf" download>⬇ Table officielle des TF (PDF)</a></p>
 `},
 
 {
@@ -666,6 +667,48 @@ $$H(z) = \frac{Y(z)}{X(z)} = \frac{\sum_k b_k z^{-k}}{1 + \sum_k a_k z^{-k}}$$
 <h4>Réponse fréquentielle</h4>
 <p>On remplace $z$ par $e^{j2\pi f/f_e}$ (le cercle unité) : $H(f) = H(z)\big|_{z = e^{j2\pi f/f_e}}$. C'est la TFtd de $h(n)$. On trace $|H(f)|$ (gain) et $\arg H(f)$ (phase) sur $[-f_e/2, f_e/2]$.</p>
 ${retenir(R`<p><b>Pôles</b> = racines du dénominateur, <b>zéros</b> = racines du numérateur (écrire $H$ en puissances positives de $z$ pour les lire).</p>`)}
+`},
+
+{
+  id: 'table-tz', theme: 'filtres', tps: ['p3'],
+  titre: 'Table des transformées en Z (unilatérales)',
+  resume: 'Les paires δ, u, n·u, aⁿu, cos, sin avec leur région de convergence, et les propriétés (retards, valeurs initiale et finale).',
+  corps: R`
+<p>Transformée en Z <b>unilatérale</b> : $X(z) = \sum_{n=0}^{+\infty}x(n)\,z^{-n}$.</p>
+${table(['Signal $x(n)$', '$X(z)$', 'ROC'], [
+  ['$\\delta(n)$', '$1$', 'tout $z$'],
+  ['$\\delta(n-i)$', '$z^{-i}$', '$z \\ne 0$'],
+  ['$u(n)$', '$\\dfrac{z}{z-1} = \\dfrac{1}{1-z^{-1}}$', '$|z|\\gt1$'],
+  ['$n\\,u(n)$', '$\\dfrac{z}{(z-1)^2}$', '$|z|\\gt1$'],
+  ['$n^2u(n)$', '$\\dfrac{z(z+1)}{(z-1)^3}$', '$|z|\\gt1$'],
+  ['$a^nu(n)$', '$\\dfrac{z}{z-a} = \\dfrac{1}{1-az^{-1}}$', '$|z|\\gt|a|$'],
+  ['$n\\,a^nu(n)$', '$\\dfrac{az}{(z-a)^2}$', '$|z|\\gt|a|$'],
+  ['$n^2a^nu(n)$', '$\\dfrac{az(z+a)}{(z-a)^3}$', '$|z|\\gt|a|$'],
+  ['$\\cos(\\omega_0n)\\,u(n)$', '$\\dfrac{z(z-\\cos\\omega_0)}{z^2-2\\cos(\\omega_0)z+1}$', '$|z|\\gt1$'],
+  ['$\\sin(\\omega_0n)\\,u(n)$', '$\\dfrac{\\sin(\\omega_0)\\,z}{z^2-2\\cos(\\omega_0)z+1}$', '$|z|\\gt1$']
+])}
+${idee(R`<p><b>ROC</b> (région de convergence) : les $z$ pour lesquels la somme converge, c'est-à-dire $\sum|x(n)z^{-n}| \lt \infty$.<br>
+• signal de <b>durée finie</b> → ROC = tout le plan (sauf peut-être $z = 0$ ou $\infty$) ;<br>
+• la ROC ne contient <b>aucun pôle</b> ;<br>
+• causal stable ⟺ la ROC contient le cercle unité ⟺ pôles dans le cercle.</p>`)}
+<h4>Propriétés</h4>
+${table(['Propriété', 'Signal', 'Transformée en Z'], [
+  ['Linéarité', '$ax(n)+by(n)$', '$aX(z)+bY(z)$'],
+  ['Retard de 1', '$x(n-1)$', '$z^{-1}X(z) + x(-1)$'],
+  ['Retard de 2', '$x(n-2)$', '$z^{-2}X(z) + x(-2) + z^{-1}x(-1)$'],
+  ['Retard de $i$', '$x(n-i)$', '$z^{-i}X(z) + x(-i) + z^{-1}x(-i+1) + \\dots + z^{-i+1}x(-1)$'],
+  ['Convolution', '$y(n) = \\sum_k h(k)e(n-k)$', '$Y(z) = H(z)E(z)$'],
+  ['Dérivation', '$n\\,x(n)$', '$-z\\,\\dfrac{dX(z)}{dz}$'],
+  ['Accumulation', '$\\sum_{k=0}^{n}x(k)$', '$\\dfrac{X(z)}{1-z^{-1}}$'],
+  ['Valeur initiale', '$x(0)$ (si $x(n) = 0$ pour $n\\lt0$)', '$\\lim_{z\\to+\\infty}X(z)$'],
+  ['Valeur finale', '$\\lim_{n\\to+\\infty}x(n)$', '$\\lim_{z\\to1}(z-1)X(z)$ (si elle existe)']
+])}
+${retenir(R`<p>Avec un filtre <b>au repos</b> ($x(-1) = x(-2) = \dots = 0$, cas des TD), un retard est simplement une multiplication par $z^{-1}$.<br>
+<b>Valeur finale</b> : réponse indicielle de $H$ → $\lim s(n) = \lim_{z\to1}(z-1)\,H(z)\frac{z}{z-1} = H(1)$ (le gain en continu).</p>`)}
+<h4>Séries géométriques</h4>
+$$\sum_{n=0}^{N}q^n = \frac{1-q^{N+1}}{1-q}\ (q\ne1),\qquad \sum_{n=0}^{N}1 = N+1,\qquad \sum_{n=0}^{+\infty}q^n = \frac{1}{1-q}\ (|q|\lt1)$$
+${methode(R`<p><b>Inverser $H(z)$</b> : écrire en éléments simples $\frac{A z}{z-p_1} + \frac{B z}{z-p_2}$ (diviser $H(z)/z$ puis multiplier par $z$), puis lire la table : $h(n) = (A\,p_1^n + B\,p_2^n)\,u(n)$.</p>`)}
+<p><a class="btn" href="pdf/tables/table-TZ.pdf" download>⬇ Table officielle des transformées en Z (PDF)</a></p>
 `},
 
 {
@@ -1263,6 +1306,10 @@ ${retenir(R`<p>Plus $a$ est proche de 1, plus le pôle est proche du cercle unit
     description: 'Signaux continus et Fourier, échantillonnage et repliement, signaux discrets, TFtd/TFD/FFT et filtres RIF/RII — d’après le cours de S. Miron, les TD 1 à 4 et le TP 3.',
     couleur: '#0e8a9a',
     filtreLabel: 'Toutes les parties',
+    ressources: [
+      { titre: 'Table des TF (PDF)', href: 'pdf/tables/table-TF.pdf', fiche: 'tf-paires' },
+      { titre: 'Table des transformées en Z (PDF)', href: 'pdf/tables/table-TZ.pdf', fiche: 'table-tz' }
+    ],
     parties: true,
     partiesInfo: {
       p1: { titre: 'Signaux continus & Fourier', couleur: '#3b6fd8', desc: 'Signaux de base, décalage et échelle, convolution, séries de Fourier, transformée de Fourier et ses propriétés. Cours 1 · TD 1.' },
