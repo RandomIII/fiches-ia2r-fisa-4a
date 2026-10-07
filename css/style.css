@@ -320,3 +320,81 @@ kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5p
   .qcm-card { padding: 18px 16px; }
   .qcm-q { font-size: 17px; }
 }
+
+/* ---------- Choix de la partie ---------- */
+.parties { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 16px; margin: 20px 0 48px; }
+.partie {
+  position: relative; display: flex; flex-direction: column; gap: 4px; overflow: hidden;
+  background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 22px 20px 18px; box-shadow: var(--shadow);
+}
+.partie::before { content: ""; position: absolute; inset: 0 0 auto 0; height: 6px; background: var(--c); }
+.partie.tout { border-style: dashed; box-shadow: none; }
+.partie-main { text-decoration: none; display: block; }
+.partie-main:hover h2 { color: var(--c); }
+.partie-num { display: inline-block; font: 700 12px "JetBrains Mono", monospace; color: var(--c); background: color-mix(in srgb, var(--c) 12%, transparent); padding: 2px 8px; border-radius: 6px; }
+.partie h2 { margin: 8px 0 0; font-size: 20px; letter-spacing: -.02em; line-height: 1.25; }
+.partie-links { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+.partie-links .btn { text-decoration: none; padding: 6px 12px; font-size: 13px; }
+
+/* ---------- Mémos A4 ---------- */
+.memo { margin: 22px 0 40px; }
+.memo-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 12px; }
+.memo-head h2 { margin: 0; font-size: 20px; letter-spacing: -.01em; }
+.memo-actions { display: flex; gap: 8px; flex-wrap: wrap; }
+.memo-actions .btn { text-decoration: none; }
+.sheets { display: flex; flex-direction: column; align-items: center; gap: 18px; }
+
+.sheet {
+  width: 210mm; height: 297mm; padding: 4.5mm 5mm 4mm; box-sizing: border-box; overflow: hidden;
+  display: flex; flex-direction: column;
+  background: #fff; color: #16161b; box-shadow: 0 4px 24px rgba(0, 0, 0, .25); border-radius: 2px;
+  font: 6.7pt/1.17 Inter, system-ui, sans-serif;
+  -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  --soft: #f1f0ec; --line: #d9d7d0; --muted: #5d5d66; --ink: #16161b; --ok: #137a4c; --ko: #b42f2f;
+  --code-bg: #f4f3ef; --code-ink: #222; --uml-fill: #fff; --uml-stroke: #333;
+}
+.sheet-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; border-bottom: 1.6px solid var(--c); padding-bottom: .8mm; margin-bottom: 1.4mm; font-size: 7.2pt; }
+.sheet-head b { color: var(--c); font-size: 8.2pt; }
+.sheet-head em { font-style: normal; font-weight: 800; color: #fff; background: var(--c); padding: .2mm 2mm; border-radius: 1mm; font-size: 7.4pt; letter-spacing: .03em; }
+.sheet-head span:last-child { color: var(--muted); text-transform: uppercase; font-size: 6pt; letter-spacing: .08em; }
+.sheet-cols { flex: 1; min-height: 0; column-count: 3; column-gap: 2.8mm; column-fill: auto; column-rule: 1px solid #ecebe6; }
+
+.ms { margin: 0 0 1mm; }
+.ms > h3 { break-after: avoid; margin: 0 0 .5mm; font-size: 1.09em; color: #fff; background: var(--c); padding: .25mm 1.2mm; border-radius: 1mm; letter-spacing: -.01em; }
+.ms p, .ms ul, .ms ol { margin: .3mm 0; }
+.ms ul, .ms ol { padding-left: 3mm; }
+.ms li { margin: 0; }
+.mk { break-inside: avoid; border: 1px solid color-mix(in srgb, var(--c) 45%, #fff); background: color-mix(in srgb, var(--c) 8%, #fff); border-radius: 1mm; padding: .45mm 1mm; margin: .5mm 0; }
+.mf { break-inside: avoid; border: 1.2px solid var(--c); background: color-mix(in srgb, var(--c) 12%, #fff); border-radius: 1mm; padding: .3mm 1mm; margin: .5mm 0; text-align: center; }
+.mex { break-inside: avoid; border-left: 2px solid #3b6fd8; background: #f2f6ff; padding: .45mm 1mm; margin: .5mm 0; border-radius: 0 1mm 1mm 0; }
+.mex > b:first-child { color: #2b59b8; }
+.mp { break-inside: avoid; border-left: 2px solid var(--ko); background: #fff3f3; padding: .45mm 1mm; margin: .5mm 0; border-radius: 0 1mm 1mm 0; }
+.mp > b:first-child { color: var(--ko); }
+.sheet .tbl { margin: .5mm 0; border-radius: .8mm; overflow: visible; break-inside: avoid; }
+.sheet table { font-size: .94em; }
+.sheet th, .sheet td { padding: .15mm .7mm; line-height: 1.15; }
+.sheet th { font-size: .98em; }
+.sheet .katex { font-size: 1em; }
+.sheet .katex-display { margin: .25mm 0; overflow: visible; }
+.sheet .mf .katex-display { margin: 0; }
+.sheet .code { margin: .5mm 0; border-radius: .8mm; break-inside: avoid; }
+.sheet .code pre { padding: .5mm 1mm; font-size: .88em; line-height: 1.22; overflow: visible; white-space: pre-wrap; }
+.sheet .code-title { padding: .1mm 1mm; font-size: .86em; }
+.sheet .plot { margin: .3mm 0; padding: 0; border: 0; background: none; break-inside: avoid; }
+.sheet .plot figcaption { font-size: .86em; margin: 0; }
+.sheet .plots { gap: 1mm; margin: .3mm 0; grid-template-columns: 1fr 1fr; }
+.sheet b { font-weight: 700; }
+.sheet code { font-size: .92em; background: var(--soft); padding: 0 .5mm; border-radius: .5mm; }
+
+@media print {
+  @page { size: A4; margin: 0; }
+  body.print-memo { background: #fff !important; }
+  body.print-memo > *:not(main) , body.print-memo main > .view:not(#view-memo),
+  body.print-memo #view-memo > .intro, body.print-memo .memo-head { display: none !important; }
+  body.print-memo:not(.print-all) .memo:not(.printing) { display: none !important; }
+  body.print-memo main { max-width: none; padding: 0; margin: 0; }
+  body.print-memo .memo { margin: 0; }
+  body.print-memo .sheets { gap: 0; zoom: 1 !important; display: block; }
+  body.print-memo .sheet { box-shadow: none; border-radius: 0; page-break-after: always; break-after: page; margin: 0; }
+}
+.p-dirac.c3 { stroke: var(--ok); } .p-dhead.c3 { fill: var(--ok); }

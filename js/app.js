@@ -12,10 +12,19 @@
     if (old && !store.get('done:genie-logiciel', null)) store.set('done:genie-logiciel', old);
   })();
 
+  // ?memo-print=1 : utilisé pour générer les PDF des mémos (seules les feuilles sont imprimées).
+  const PRINT_MODE = new URLSearchParams(location.search).has('memo-print');
+  if (PRINT_MODE) document.body.classList.add('print-memo', 'print-all');
+
   let M = null;                       // matière ouverte
-  const ui = { theme: 'all', tp: 'all', q: '', visible: [], list: [], current: -1 };
+  let scope = null;                   // partie ouverte ('p1', ..., 'tout'), seulement si la matière a des parties
+  const ui = { theme: 'all', q: '', visible: [], list: [], current: -1 };
   const doneSet = m => new Set(store.get('done:' + m.id, []));
   let done = new Set();
+
+  const inScope = x => !scope || scope === 'tout' || (x.tps || []).includes(scope);
+  const base = () => `#/${M.id}` + (scope ? '/' + scope : '');
+  const partieNom = k => (M.tps && M.tps[k]) || k;
 
   /* ---------- Thème clair / sombre ---------- */
   $('#theme-btn').addEventListener('click', () => {
@@ -39,7 +48,10 @@
       throwOnError: false
     });
   };
-  window.addEventListener('load', () => ['#grid', '#m-body', '#m-resume', '#qcm-card', '#lexique'].forEach(s => math($(s))));
+  window.addEventListener('load', () => {
+    ['#grid', '#m-body', '#m-resume', '#qcm-card', '#lexique', '#memos', '#parties'].forEach(s => math($(s)));
+    fitSheets();
+  });
 
   const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const plain = html => html.replace(/<[^>]+>/g, ' ');
@@ -49,57 +61,101 @@
     const cards = MATIERES.map(m => {
       const d = doneSet(m).size, n = m.fiches.length;
       const best = store.get('qcm-best:' + m.id, null);
+      const nParties = m.parties ? Object.keys(m.tps).length : 0;
       return `<a class="matiere" href="#/${m.id}" style="--c:${m.couleur}">
         <div class="mat-band"></div>
         <h2>${esc(m.nom)}</h2>
         <p class="mat-sub">${esc(m.sousTitre || '')}</p>
         <p class="mat-desc">${esc(m.description || '')}</p>
         <div class="mat-stats">
-          <span><b>${n}</b> fiches</span><span><b>${m.qcm.length}</b> questions</span><span><b>${m.lexique.length}</b> mots</span>
+          ${nParties ? `<span><b>${nParties}</b> parties</span>` : ''}
+          <span><b>${n}</b> fiches</span><span><b>${m.qcm.length}</b> questions</span>
+          ${m.memos ? `<span><b>${Object.keys(m.memos).length}</b> mémo${Object.keys(m.memos).length > 1 ? 's' : ''} A4</span>` : `<span><b>${m.lexique.length}</b> mots</span>`}
         </div>
         <div class="progress small"><div class="bar"><span style="width:${n ? 100 * d / n : 0}%"></span></div><span>${d}/${n} maîtrisées${best != null ? ` · meilleur QCM ${best} %` : ''}</span></div>
       </a>`;
     }).join('');
-    $('#matieres').innerHTML = cards + `<div class="matiere soon"><h2>Prochaine matière</h2><p class="mat-desc">Bientôt ici : même format, fiches + QCM + lexique.</p></div>`;
+    $('#matieres').innerHTML = cards + `<div class="matiere soon"><h2>Prochaine matière</h2><p class="mat-desc">Bientôt ici : même format, fiches + QCM + mémo + lexique.</p></div>`;
+  }
+
+  /* ================= CHOIX DE LA PARTIE ================= */
+  function renderParties() {
+    $('#parties-title').textContent = M.nom;
+    $('#parties-desc').textContent = M.description || '';
+    const card = (k, titre, desc, color) => {
+      const fiches = M.fiches.filter(f => k === 'tout' || (f.tps || []).includes(k));
+      const qs = M.qcm.filter(x => k === 'tout' || (x.tps || []).includes(k));
+      const d = fiches.filter(f => done.has(f.id)).length;
+      const nMemos = k === 'tout' ? Object.keys(M.memos || {}).length : (M.memos && M.memos[k] ? 1 : 0);
+      const memo = nMemos > 0;
+      const href = `#/${M.id}/${k}`;
+      return `<div class="partie${k === 'tout' ? ' tout' : ''}" style="--c:${color}">
+        <a class="partie-main" href="${href}">
+          <span class="partie-num">${k === 'tout' ? '∑' : esc((M.tpsCourt || {})[k] || k)}</span>
+          <h2>${esc(titre)}</h2>
+          <p class="mat-desc">${desc}</p>
+        </a>
+        <div class="mat-stats"><span><b>${fiches.length}</b> fiches</span><span><b>${qs.length}</b> questions</span>${memo ? `<span><b>${nMemos}</b> mémo${nMemos > 1 ? 's' : ''} A4</span>` : ''}</div>
+        <div class="progress small"><div class="bar"><span style="width:${fiches.length ? 100 * d / fiches.length : 0}%"></span></div><span>${d}/${fiches.length} maîtrisées</span></div>
+        <div class="partie-links">
+          <a class="btn" href="${href}">Fiches</a>
+          <a class="btn" href="${href}/qcm">QCM</a>
+          ${memo ? `<a class="btn ok" href="${href}/memo">📄 Mémo A4</a>` : ''}
+        </div>
+      </div>`;
+    };
+    const info = M.partiesInfo || {};
+    $('#parties').innerHTML = Object.keys(M.tps).map((k, i) =>
+      card(k, (info[k] && info[k].titre) || partieNom(k), (info[k] && info[k].desc) || '', (info[k] && info[k].couleur) || M.couleur)
+    ).join('') + card('tout', 'Toutes les parties', 'Tout le cours d’un coup : toutes les fiches, le QCM complet et les mémos de chaque partie.', M.couleur);
+    math($('#parties'));
   }
 
   /* ================= FICHES ================= */
   let searchIndex = new Map();
 
-  function openMatiere(m) {
-    if (M === m) return;
-    M = m;
-    done = doneSet(m);
+  function openMatiere(m, sc) {
+    if (M === m && scope === sc) return;
+    const sameM = M === m;
+    M = m; scope = sc;
+    if (!sameM) {
+      done = doneSet(m);
+      searchIndex = new Map(m.fiches.map(f => [f.id, norm(f.titre + ' ' + f.resume + ' ' + plain(f.corps))]));
+    }
     Object.assign(ui, { theme: 'all', tp: 'all', q: '' });
     $('#search').value = '';
     $('#lex-search').value = '';
-    searchIndex = new Map(m.fiches.map(f => [f.id, norm(f.titre + ' ' + f.resume + ' ' + plain(f.corps))]));
-    $('#fiches-title').textContent = m.nom + (m.sousTitre ? ' — ' + m.sousTitre : '');
-    renderFilters(); renderGrid(); renderLexique();
+    const sub = scope && scope !== 'tout' ? partieNom(scope) : (m.sousTitre || '');
+    $('#fiches-title').textContent = m.nom + (sub ? ' — ' + sub : '');
+    renderFilters(); renderGrid(); renderLexique(); renderMemos();
     qcm.theme = 'all'; qcm.type = 'all'; qcm.tp = 'all'; renderQcmChips(); qcmStart();
   }
 
   function renderFilters() {
-    chips($('#theme-chips'), [['all', 'Tous les thèmes']].concat(Object.entries(M.themes).map(([k, t]) => [k, t.nom, t.couleur])),
+    chips($('#theme-chips'), [['all', 'Tous les thèmes']].concat(Object.entries(M.themes)
+      .filter(([k]) => M.fiches.some(f => f.theme === k && inScope(f))).map(([k, t]) => [k, t.nom, t.couleur])),
       ui.theme, k => { ui.theme = k; renderFilters(); renderGrid(); });
-    const tps = M.tps && Object.keys(M.tps).length ? M.tps : null;
+    // Les matières à parties choisissent la partie par les sous-cartes ; les autres filtrent par TP.
+    const tps = !M.parties && M.tps && Object.keys(M.tps).length ? M.tps : null;
     $('#tp-chips').hidden = !tps;
-    if (tps) chips($('#tp-chips'), [['all', M.filtreLabel || 'Tous les TP']].concat(Object.entries(tps)), ui.tp,
+    if (tps) chips($('#tp-chips'), [['all', M.filtreLabel || 'Tous les TP']].concat(Object.entries(tps)), ui.tp || 'all',
       k => { ui.tp = k; renderFilters(); renderGrid(); });
   }
 
   function renderGrid() {
     const q = norm(ui.q.trim());
     ui.visible = M.fiches.filter(f =>
+      inScope(f) &&
       (ui.theme === 'all' || f.theme === ui.theme) &&
-      (ui.tp === 'all' || (f.tps || []).includes(ui.tp)) &&
+      (!ui.tp || ui.tp === 'all' || (f.tps || []).includes(ui.tp)) &&
       (!q || q.split(/\s+/).every(w => searchIndex.get(f.id).includes(w))));
 
     $('#grid').innerHTML = ui.visible.map(f => {
       const t = M.themes[f.theme];
       const n = M.fiches.indexOf(f) + 1;
-      const badges = [f.corps.includes('class="uml"') ? 'UML' : null, f.corps.includes('class="code') ? 'Code' : null].filter(Boolean);
-      return `<a class="card${done.has(f.id) ? ' done' : ''}" href="#/${M.id}/f/${f.id}" style="--c:${t.couleur}">
+      const badges = [f.corps.includes('class="uml"') ? 'UML' : null, f.corps.includes('class="plot"') ? 'Graphe' : null,
+        f.corps.includes('class="code') ? 'Code' : null].filter(Boolean);
+      return `<a class="card${done.has(f.id) ? ' done' : ''}" href="${base()}/f/${f.id}" style="--c:${t.couleur}">
         <div class="card-top"><span class="pill">${esc(t.nom)}</span><span class="num">${String(n).padStart(2, '0')}</span></div>
         <h3>${esc(f.titre)}</h3>
         <p>${esc(f.resume)}</p>
@@ -111,8 +167,9 @@
     }).join('');
     $('#empty').hidden = ui.visible.length > 0;
     math($('#grid'));
-    const n = done.size, tot = M.fiches.length;
-    $('#progress-bar').style.width = (100 * n / tot) + '%';
+    const all = M.fiches.filter(inScope);
+    const n = all.filter(f => done.has(f.id)).length, tot = all.length;
+    $('#progress-bar').style.width = (tot ? 100 * n / tot : 0) + '%';
     $('#progress-txt').textContent = `${n} / ${tot} fiches maîtrisées`;
   }
 
@@ -154,19 +211,19 @@
     };
   }
 
-  const step = d => { const f = ui.list[ui.current + d]; if (f) location.hash = `#/${M.id}/f/${f.id}`; };
+  const step = d => { const f = ui.list[ui.current + d]; if (f) location.hash = `${base()}/f/${f.id}`; };
   $('#m-prev').onclick = () => step(-1);
   $('#m-next').onclick = () => step(1);
   // On nettoie l'URL nous-mêmes plutôt que via l'événement 'close', qui n'est pas toujours livré ;
   // sinon recliquer sur la même carte ne change pas le hash et la fiche ne se rouvre pas.
   const closeFiche = () => {
     if (modal.open) modal.close();
-    if (M && /\/f\//.test(location.hash)) history.replaceState(null, '', `#/${M.id}`);
+    if (M && /\/f\//.test(location.hash)) history.replaceState(null, '', base());
   };
   $('#m-close').onclick = closeFiche;
   modal.addEventListener('click', e => { if (e.target === modal) closeFiche(); });
   modal.addEventListener('cancel', e => { e.preventDefault(); closeFiche(); });
-  modal.addEventListener('close', () => { if (M && /\/f\//.test(location.hash)) history.replaceState(null, '', `#/${M.id}`); });
+  modal.addEventListener('close', () => { if (M && /\/f\//.test(location.hash)) history.replaceState(null, '', base()); });
   $('#grid').addEventListener('click', e => {
     const a = e.target.closest('a.card');
     if (a && a.getAttribute('href') === location.hash) { e.preventDefault(); route(); }
@@ -180,10 +237,11 @@
   const qcm = { theme: 'all', type: 'all', tp: 'all', deck: [], i: 0, ok: 0, ko: [], answered: false, order: [] };
   const types = () => [['all', 'Tout'], ['pratique', '🛠 ' + (M.pratiqueLabel || 'Pratique')], ['theorie', '📖 Théorie']];
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const qcmPool = () => M.qcm.filter(inScope);
 
   function qcmStart(deck) {
     qcm.full = !deck;
-    qcm.deck = shuffle((deck || M.qcm.filter(x =>
+    qcm.deck = shuffle((deck || qcmPool().filter(x =>
       (qcm.theme === 'all' || x.theme === qcm.theme) && (qcm.type === 'all' || x.type === qcm.type) &&
       (qcm.tp === 'all' || (x.tps || []).includes(qcm.tp)))).slice());
     qcm.i = 0; qcm.ok = 0; qcm.ko = [];
@@ -191,13 +249,14 @@
   }
 
   function renderQcmChips() {
-    const used = new Set(M.qcm.map(x => x.theme));
-    chips($('#qcm-type-chips'), types().map(([k, l]) => [k, l + ' · ' + (k === 'all' ? M.qcm.length : M.qcm.filter(x => x.type === k).length)]),
+    const pool = qcmPool();
+    const used = new Set(pool.map(x => x.theme));
+    chips($('#qcm-type-chips'), types().map(([k, l]) => [k, l + ' · ' + (k === 'all' ? pool.length : pool.filter(x => x.type === k).length)]),
       qcm.type, k => { qcm.type = k; renderQcmChips(); qcmStart(); });
     chips($('#qcm-chips'), [['all', 'Tous les thèmes']].concat(Object.entries(M.themes).filter(([k]) => used.has(k)).map(([k, t]) => [k, t.nom, t.couleur])),
       qcm.theme, k => { qcm.theme = k; renderQcmChips(); qcmStart(); });
-    // Filtre par partie / TP seulement si les questions de la matière en sont étiquetées.
-    const parTp = M.tps && M.qcm.some(x => x.tps);
+    // Filtre par TP seulement pour les matières sans sous-cartes de parties, et si les questions sont étiquetées.
+    const parTp = !M.parties && M.tps && M.qcm.some(x => x.tps);
     $('#qcm-tp-chips').hidden = !parTp;
     if (parTp) chips($('#qcm-tp-chips'), [['all', M.filtreLabel || 'Tous les TP']].concat(Object.entries(M.tps)),
       qcm.tp, k => { qcm.tp = k; renderQcmChips(); qcmStart(); });
@@ -263,7 +322,7 @@
       : 'Relis les fiches correspondantes, puis retente : ça va venir.';
     $('#qcm-retry-ko').hidden = !qcm.ko.length;
     // Le meilleur score n'a de sens que sur le QCM complet, pas sur un filtre ou une reprise des erreurs.
-    if (qcm.full && qcm.theme === 'all' && qcm.type === 'all' && qcm.tp === 'all') {
+    if (qcm.full && (!scope || scope === 'tout') && qcm.theme === 'all' && qcm.type === 'all' && qcm.tp === 'all') {
       const best = store.get('qcm-best:' + M.id, 0);
       if (pct > best) store.set('qcm-best:' + M.id, pct);
     }
@@ -283,6 +342,75 @@
     }
   });
 
+  /* ================= MÉMOS A4 ================= */
+  function renderMemos() {
+    const memos = M.memos || {};
+    const keys = Object.keys(memos).filter(k => !scope || scope === 'tout' || k === scope);
+    $('#memos').innerHTML = keys.map(k => {
+      const mm = memos[k];
+      const pdf = `pdf/${M.id}-${k}.pdf`;
+      return `<section class="memo" data-k="${k}">
+        <div class="memo-head">
+          <h2>${esc(mm.titre)}</h2>
+          <div class="memo-actions">
+            <a class="btn ok" href="${pdf}" download>⬇ Télécharger le PDF</a>
+            <button class="btn" type="button" data-print="${k}">🖨 Imprimer</button>
+          </div>
+        </div>
+        <div class="sheets">${mm.pages.map((p, i) => `<article class="sheet" style="--c:${mm.couleur || M.couleur}">
+          <header class="sheet-head"><b>${esc(M.nom)}</b><span>${esc(mm.titre)}</span><em>${esc((mm.labels || [])[i] || '')}</em><span>${i ? 'verso' : 'recto'}</span></header>
+          <div class="sheet-cols">${p}</div>
+        </article>`).join('')}</div>
+      </section>`;
+    }).join('') || '<p class="empty">Pas encore de mémo pour cette matière.</p>';
+    math($('#memos'));
+    fitSheets();
+    fitMemoText();
+  }
+
+  // Les feuilles font 210 mm de large : on les réduit à l'écran pour qu'elles tiennent dans la page.
+  function fitSheets() {
+    document.querySelectorAll('.sheets').forEach(s => {
+      if (PRINT_MODE) { s.style.zoom = ''; return; }
+      const avail = s.parentElement.clientWidth;
+      const sheetW = 793.7; // 210 mm à 96 dpi
+      s.style.zoom = avail && avail < sheetW ? (avail / sheetW).toFixed(3) : '';
+    });
+  }
+  window.addEventListener('resize', fitSheets);
+
+  // Chaque feuille prend la plus grande police qui tient dans ses 3 colonnes :
+  // une colonne de trop apparaît à droite de la zone dès que le contenu déborde.
+  function fitMemoText() {
+    if ($('#view-memo').hidden) return;
+    document.querySelectorAll('.sheet').forEach(sheet => {
+      const cols = sheet.querySelector('.sheet-cols');
+      const overflows = () => {
+        const right = cols.getBoundingClientRect().right + 2;
+        return [...cols.children].some(e => e.getBoundingClientRect().right > right);
+      };
+      let lo = 5.8, hi = 9.5;
+      for (let i = 0; i < 9; i++) {
+        const mid = (lo + hi) / 2;
+        sheet.style.fontSize = mid + 'pt';
+        if (overflows()) hi = mid; else lo = mid;
+      }
+      sheet.style.fontSize = lo.toFixed(2) + 'pt';
+    });
+  }
+  const refitMemos = () => { math($('#memos')); fitMemoText(); };
+  if (document.fonts) document.fonts.ready.then(refitMemos);
+  window.addEventListener('load', refitMemos);
+
+  $('#memos').addEventListener('click', e => {
+    const b = e.target.closest('[data-print]');
+    if (!b) return;
+    document.querySelectorAll('.memo').forEach(m => m.classList.toggle('printing', m.dataset.k === b.dataset.print));
+    document.body.classList.add('print-memo');
+    window.print();
+  });
+  window.addEventListener('afterprint', () => { if (!PRINT_MODE) document.body.classList.remove('print-memo'); });
+
   /* ================= LEXIQUE ================= */
   function renderLexique() {
     const q = norm($('#lex-search').value.trim());
@@ -297,36 +425,59 @@
   function show(view) {
     document.querySelectorAll('.view').forEach(v => { v.hidden = v.id !== 'view-' + view; });
     document.querySelectorAll('#tabs a').forEach(a => a.classList.toggle('on', a.dataset.tab === view));
+    if (view === 'memo') { fitSheets(); fitMemoText(); }
+  }
+
+  function setHeader(m) {
+    $('#tabs').hidden = !m || (m.parties && !scope);
+    if (m) {
+      $('#tabs').style.setProperty('--c', m.couleur);
+      document.querySelectorAll('#tabs a').forEach(a => {
+        a.href = base() + (a.dataset.tab === 'fiches' ? '' : '/' + a.dataset.tab);
+        a.hidden = a.dataset.tab === 'memo' && !m.memos;
+      });
+    }
+    $('#brand-title').textContent = m ? m.nom : 'Fiches IA2R';
+    $('#brand-sub').textContent = m ? '← Toutes les matières' : 'FISA · 4A · Polytech Nancy';
+    document.title = m ? m.nom + (scope && scope !== 'tout' ? ' · ' + ((m.tpsCourt || {})[scope] || scope) : '') + ' — Fiches IA2R' : 'Fiches IA2R FISA 4A';
+    // Lien retour : vers les parties si on est dans une partie, sinon vers les matières.
+    document.querySelectorAll('.back').forEach(a => {
+      const versParties = m && m.parties && !a.closest('#view-parties');
+      a.href = versParties ? `#/${m.id}` : '#/';
+      a.textContent = versParties ? `← ${m.nom} : toutes les parties` : '← Toutes les matières';
+    });
   }
 
   function route() {
-    let h = location.hash.replace(/^#\/?/, '');
+    const h = location.hash.replace(/^#\/?/, '');
     // Liens partagés avant le menu multi-matières : #f/<id>, #quiz, #lexique.
-    const legacy = h.match(/^(f\/.+|quiz|lexique)$/);
-    if (legacy && MATIERES[0]) {
-      const rest = h === 'quiz' ? 'qcm' : h;
-      return location.replace(`#/${MATIERES[0].id}/${rest}`);
+    if (/^(f\/.+|quiz|lexique)$/.test(h) && MATIERES[0]) {
+      return location.replace(`#/${MATIERES[0].id}/${h === 'quiz' ? 'qcm' : h}`);
     }
-    const [mid, page, fid] = h.split('/');
-    const m = MATIERES.find(x => x.id === mid);
+    const segs = h.split('/').filter(Boolean);
+    const m = MATIERES.find(x => x.id === segs[0]);
     if (!m) {
       if (modal.open) modal.close();
-      M = null;
-      $('#tabs').hidden = true;
-      $('#brand-title').textContent = 'Fiches IA2R';
-      $('#brand-sub').textContent = 'FISA · 4A · Polytech Nancy';
-      document.title = 'Fiches IA2R FISA 4A';
+      M = null; scope = null;
+      setHeader(null);
       renderHome(); show('home');
       return;
     }
-    openMatiere(m);
-    $('#tabs').hidden = false;
-    $('#tabs').style.setProperty('--c', m.couleur);
-    document.querySelectorAll('#tabs a').forEach(a => { a.href = `#/${m.id}` + (a.dataset.tab === 'fiches' ? '' : '/' + a.dataset.tab); });
-    $('#brand-title').textContent = m.nom;
-    $('#brand-sub').textContent = '← Toutes les matières';
-    document.title = m.nom + ' — Fiches IA2R';
-    const view = page === 'qcm' ? 'qcm' : page === 'lexique' ? 'lexique' : 'fiches';
+    let rest = segs.slice(1), sc = null;
+    if (m.parties) {
+      if (rest[0] && (rest[0] === 'tout' || m.tps[rest[0]])) sc = rest.shift();
+      else if (rest.length) sc = 'tout';                // anciens liens #/tns/qcm, #/tns/f/...
+      else {                                            // #/tns : choix de la partie
+        if (modal.open) modal.close();
+        openMatiere(m, null);
+        setHeader(m); renderParties(); show('parties');
+        return;
+      }
+    }
+    openMatiere(m, sc);
+    setHeader(m);
+    const [page, fid] = rest;
+    const view = ['qcm', 'lexique', 'memo'].includes(page) ? page : 'fiches';
     show(view);
     if (page === 'f' && fid) openFiche(fid);
     else if (modal.open) modal.close();

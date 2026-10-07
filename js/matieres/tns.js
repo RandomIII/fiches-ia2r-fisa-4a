@@ -1263,6 +1263,12 @@ ${retenir(R`<p>Plus $a$ est proche de 1, plus le pôle est proche du cercle unit
     description: 'Signaux continus et Fourier, échantillonnage et repliement, signaux discrets, TFtd/TFD/FFT et filtres RIF/RII — d’après le cours de S. Miron, les TD 1 à 4 et le TP 3.',
     couleur: '#0e8a9a',
     filtreLabel: 'Toutes les parties',
+    parties: true,
+    partiesInfo: {
+      p1: { titre: 'Signaux continus & Fourier', couleur: '#3b6fd8', desc: 'Signaux de base, décalage et échelle, convolution, séries de Fourier, transformée de Fourier et ses propriétés. Cours 1 · TD 1.' },
+      p2: { titre: 'Échantillonnage & interpolation', couleur: '#d4730b', desc: 'Peigne de Dirac, Shannon, repliement, anti-repliement, interpolateur de Shannon, BOZ, son numérique. Cours 2 · TD 2 · TP 3.' },
+      p3: { titre: 'Signaux discrets, TFtd/TFD & filtres', couleur: '#1a8a5a', desc: 'Suites, opérations, convolution discrète, TFtd, TFD, FFT, H(z), stabilité, filtres RIF et RII. Cours 3 · TD 3 · TD 4.' }
+    },
     pratiqueLabel: 'Pratique (calculs, graphes, Matlab)',
     themes: THEMES, tps: TPS, tpsCourt: TPS_COURT, fiches: FICHES, qcm: QCM, lexique: LEXIQUE
   });

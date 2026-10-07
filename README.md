@@ -29,6 +29,16 @@ Les formules s’écrivent en LaTeX (`$...$`, `$$...$$`) dans des chaînes ``R`.
 
 Après une modification, incrémenter le `?v=` des scripts dans `index.html` pour que les navigateurs ne gardent pas l’ancienne version en cache.
 
+## Mémos A4 (PDF)
+
+Chaque partie peut avoir un mémo A4 recto verso (recto = cours, verso = exercices), défini dans `js/matieres/<matière>-memo.js`.
+La police de chaque feuille s'ajuste automatiquement pour remplir les 3 colonnes sans déborder.
+Les PDF téléchargeables sont dans `pdf/` ; pour les régénérer après une modification (serveur local lancé sur le port 5173) :
+
+```bash
+"/c/Program Files (x86)/Microsoft/Edge/Application/msedge.exe" --headless=new --no-pdf-header-footer --virtual-time-budget=20000 --print-to-pdf="pdf/tns-p1.pdf" "http://localhost:5173/?memo-print=1#/tns/p1/memo"
+```
+
 ## Lancer en local
 
 Ouvrir `index.html` dans un navigateur, ou :
