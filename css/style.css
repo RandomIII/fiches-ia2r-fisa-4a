@@ -357,7 +357,7 @@ kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5p
 .sheet-head b { color: var(--c); font-size: 8.2pt; }
 .sheet-head em { font-style: normal; font-weight: 800; color: #fff; background: var(--c); padding: .2mm 2mm; border-radius: 1mm; font-size: 7.4pt; letter-spacing: .03em; }
 .sheet-head span:last-child { color: var(--muted); text-transform: uppercase; font-size: 6pt; letter-spacing: .08em; }
-.sheet-cols { flex: 1; min-height: 0; column-count: 3; column-gap: 2.8mm; column-fill: auto; column-rule: 1px solid #ecebe6; }
+.sheet-cols { flex: 1; min-height: 0; overflow: hidden; column-count: 3; column-gap: 2.8mm; column-fill: auto; column-rule: 1px solid #ecebe6; }
 
 .ms { margin: 0 0 1mm; }
 .ms > h3 { break-after: avoid; margin: 0 0 .5mm; font-size: 1.09em; color: #fff; background: var(--c); padding: .25mm 1.2mm; border-radius: 1mm; letter-spacing: -.01em; }

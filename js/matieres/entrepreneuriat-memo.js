@@ -254,7 +254,8 @@ ${S('Décoder les phrases', R`
 <p>« CA +12 %, marge brute −3 points » → vend plus mais gagne moins par vente. « EBE de 18 %, confortable pour le secteur » → bonne rentabilité vs concurrents. « Résultat positif mais trésorerie asséchée par le BFR » → rentable mais cash bloqué (clients pas encore payés, fournisseurs déjà payés). « Investisseurs → burn rate » → pas rentable, la question est le temps restant.</p>
 `)}
 ${S('Complément : seuil de rentabilité', R`
-${F(R`Seuil (en quantité) $= \dfrac{CF}{\text{prix} - c_v}$&emsp;Seuil (en CA) $= \dfrac{CF}{\text{taux de marge sur coût variable}}$`)}
+${F(R`Seuil (en quantité) $= \dfrac{CF}{\text{prix} - c_v}$`)}
+${F(R`Seuil (en CA) $= \dfrac{CF}{\text{taux de marge sur CV}}$`)}
 <p>Volume à partir duquel l'entreprise ne perd plus d'argent (marge sur coûts variables = coûts fixes). Ne pas confondre avec le seuil d'indifférence (comparaison de 2 options de coût).</p>
 `)}
 ${S('Livrables du projet', R`

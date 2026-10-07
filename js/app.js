@@ -389,8 +389,11 @@
     document.querySelectorAll('.sheet').forEach(sheet => {
       const cols = sheet.querySelector('.sheet-cols');
       const overflows = () => {
-        const right = cols.getBoundingClientRect().right + 2;
-        return [...cols.children].some(e => e.getBoundingClientRect().right > right);
+        const box = cols.getBoundingClientRect();
+        const colW = box.width / 3;
+        // Débordement en 4e colonne, ou bien formule / tableau / graphe plus large que sa colonne.
+        return [...cols.children].some(e => e.getBoundingClientRect().right > box.right + 2) ||
+          [...cols.querySelectorAll('.katex-html, table, svg, .mf')].some(e => e.getBoundingClientRect().width > colW);
       };
       let lo = 5.8, hi = (M && M.memoMaxPt) || 9.5;   // une matière peu fournie peut écrire plus gros
       for (let i = 0; i < 9; i++) {
@@ -398,7 +401,8 @@
         sheet.style.fontSize = mid + 'pt';
         if (overflows()) hi = mid; else lo = mid;
       }
-      sheet.style.fontSize = lo.toFixed(2) + 'pt';
+      // Marge de 3 % : les autres navigateurs calculent le texte un peu différemment.
+      sheet.style.fontSize = (lo * 0.97).toFixed(2) + 'pt';
     });
   }
   const refitMemos = () => { math($('#memos')); fitMemoText(); };
