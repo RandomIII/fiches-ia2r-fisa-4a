@@ -15,6 +15,7 @@ Liens partageables : `#/genie-logiciel` (fiches), `#/genie-logiciel/qcm`, `#/gen
 | Matière | Fichier |
 |---|---|
 | Génie Logiciel (Java & UML) | [`js/matieres/genie-logiciel.js`](js/matieres/genie-logiciel.js) |
+| Traitement numérique du signal (3 parties) | [`js/matieres/tns.js`](js/matieres/tns.js) |
 
 ## Ajouter une matière
 
@@ -22,7 +23,11 @@ Liens partageables : `#/genie-logiciel` (fiches), `#/genie-logiciel/qcm`, `#/gen
 2. Ajouter la ligne `<script src="js/matieres/<ma-matiere>.js"></script>` dans `index.html`, avant `app.js`.
 
 Dans le QCM, la **bonne réponse est toujours écrite en premier** dans `choix` : l’ordre est mélangé à l’affichage.
-Les diagrammes UML sont décrits en JS (boîtes + relations) et dessinés en SVG par [`js/uml.js`](js/uml.js).
+Les diagrammes UML sont décrits en JS (boîtes + relations) et dessinés en SVG par [`js/uml.js`](js/uml.js) ;
+les graphes de signaux (courbes, Dirac, suites, pôles/zéros) par [`js/plot.js`](js/plot.js).
+Les formules s’écrivent en LaTeX (`$...$`, `$$...$$`) dans des chaînes ``R`...` `` et sont affichées par KaTeX.
+
+Après une modification, incrémenter le `?v=` des scripts dans `index.html` pour que les navigateurs ne gardent pas l’ancienne version en cache.
 
 ## Lancer en local
 

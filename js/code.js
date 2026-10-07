@@ -36,7 +36,7 @@
     const txt = dedent(src);
     const body = o.plain ? esc(txt) : highlight(txt);
     const title = o.title ? `<div class="code-title">${esc(o.title)}</div>` : '';
-    return `<div class="code${o.plain ? ' code-out' : ''}">${title}<pre><code>${body}</code></pre></div>`;
+    return `<div class="code${o.cls ? ' ' + o.cls : o.plain ? ' code-out' : ''}">${title}<pre><code>${body}</code></pre></div>`;
   }
 
   // J`...` : code Java ; F('Fichier.java')`...` : avec un nom de fichier ;
@@ -44,6 +44,7 @@
   window.J = (s, ...v) => block(String.raw(s, ...v));
   window.F = title => (s, ...v) => block(String.raw(s, ...v), { title });
   window.O = (s, ...v) => block(String.raw(s, ...v), { plain: true, title: 'Console' });
+  window.MAT = (s, ...v) => block(String.raw(s, ...v), { plain: true, title: 'Matlab', cls: 'code-mat' });
   window.c = (s, ...v) => `<code>${esc(String.raw(s, ...v))}</code>`;
   window.escHTML = esc;
 })();

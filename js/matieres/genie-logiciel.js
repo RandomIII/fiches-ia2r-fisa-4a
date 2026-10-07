@@ -1747,6 +1747,7 @@
     sousTitre: 'Java & UML',
     description: 'Héritage, interfaces, UML, collections, exceptions, sérialisation — d’après les TP Télécommande, Collections, Hôtel Paradis et Sérialisation.',
     couleur: '#8250df',
+    pratiqueLabel: 'Pratique (code, UML)',
     themes: THEMES, tps: TPS, fiches: FICHES, qcm: QCM, lexique: LEXIQUE
   });
 })();

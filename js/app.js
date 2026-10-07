@@ -32,6 +32,15 @@
     el.onclick = e => { const b = e.target.closest('.chip'); if (b) onPick(b.dataset.k); };
   }
 
+  // Formules LaTeX ($...$ et $$...$$) via KaTeX, chargé en différé : sans lui, le texte brut reste lisible.
+  const math = el => {
+    if (el && window.renderMathInElement) renderMathInElement(el, {
+      delimiters: [{ left: '$$', right: '$$', display: true }, { left: '$', right: '$', display: false }],
+      throwOnError: false
+    });
+  };
+  window.addEventListener('load', () => ['#grid', '#m-body', '#m-resume', '#qcm-card', '#lexique'].forEach(s => math($(s))));
+
   const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const plain = html => html.replace(/<[^>]+>/g, ' ');
 
@@ -67,7 +76,7 @@
     searchIndex = new Map(m.fiches.map(f => [f.id, norm(f.titre + ' ' + f.resume + ' ' + plain(f.corps))]));
     $('#fiches-title').textContent = m.nom + (m.sousTitre ? ' — ' + m.sousTitre : '');
     renderFilters(); renderGrid(); renderLexique();
-    qcm.theme = 'all'; qcm.type = 'all'; renderQcmChips(); qcmStart();
+    qcm.theme = 'all'; qcm.type = 'all'; qcm.tp = 'all'; renderQcmChips(); qcmStart();
   }
 
   function renderFilters() {
@@ -75,7 +84,7 @@
       ui.theme, k => { ui.theme = k; renderFilters(); renderGrid(); });
     const tps = M.tps && Object.keys(M.tps).length ? M.tps : null;
     $('#tp-chips').hidden = !tps;
-    if (tps) chips($('#tp-chips'), [['all', 'Tous les TP']].concat(Object.entries(tps)), ui.tp,
+    if (tps) chips($('#tp-chips'), [['all', M.filtreLabel || 'Tous les TP']].concat(Object.entries(tps)), ui.tp,
       k => { ui.tp = k; renderFilters(); renderGrid(); });
   }
 
@@ -95,12 +104,13 @@
         <h3>${esc(f.titre)}</h3>
         <p>${esc(f.resume)}</p>
         <div class="card-foot">
-          <span class="tps">${(f.tps || []).map(k => esc((M.tps[k] || k).replace('TP ', ''))).join(' · ')}</span>
+          <span class="tps">${(f.tps || []).map(k => esc((M.tpsCourt || {})[k] || (M.tps[k] || k).replace('TP ', ''))).join(' · ')}</span>
           <span class="badges">${badges.map(b => `<span>${b}</span>`).join('')}<span class="check" title="Maîtrisée">✓</span></span>
         </div>
       </a>`;
     }).join('');
     $('#empty').hidden = ui.visible.length > 0;
+    math($('#grid'));
     const n = done.size, tot = M.fiches.length;
     $('#progress-bar').style.width = (100 * n / tot) + '%';
     $('#progress-txt').textContent = `${n} / ${tot} fiches maîtrisées`;
@@ -123,6 +133,7 @@
     $('#m-title').textContent = f.titre;
     $('#m-resume').textContent = f.resume;
     $('#m-body').innerHTML = f.corps;
+    math($('#m-resume')); math($('#m-body'));
     $('#m-prev').disabled = ui.current <= 0;
     $('#m-next').disabled = ui.current >= ui.list.length - 1;
     renderDoneBtn(f.id);
@@ -166,24 +177,30 @@
   });
 
   /* ================= QCM ================= */
-  const qcm = { theme: 'all', type: 'all', deck: [], i: 0, ok: 0, ko: [], answered: false, order: [] };
-  const TYPES = [['all', 'Tout'], ['pratique', '🛠 Pratique (code, UML)'], ['theorie', '📖 Théorie']];
+  const qcm = { theme: 'all', type: 'all', tp: 'all', deck: [], i: 0, ok: 0, ko: [], answered: false, order: [] };
+  const types = () => [['all', 'Tout'], ['pratique', '🛠 ' + (M.pratiqueLabel || 'Pratique')], ['theorie', '📖 Théorie']];
   const shuffle = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
 
   function qcmStart(deck) {
     qcm.full = !deck;
     qcm.deck = shuffle((deck || M.qcm.filter(x =>
-      (qcm.theme === 'all' || x.theme === qcm.theme) && (qcm.type === 'all' || x.type === qcm.type))).slice());
+      (qcm.theme === 'all' || x.theme === qcm.theme) && (qcm.type === 'all' || x.type === qcm.type) &&
+      (qcm.tp === 'all' || (x.tps || []).includes(qcm.tp)))).slice());
     qcm.i = 0; qcm.ok = 0; qcm.ko = [];
     renderQcm();
   }
 
   function renderQcmChips() {
     const used = new Set(M.qcm.map(x => x.theme));
-    chips($('#qcm-type-chips'), TYPES.map(([k, l]) => [k, l + ' · ' + (k === 'all' ? M.qcm.length : M.qcm.filter(x => x.type === k).length)]),
+    chips($('#qcm-type-chips'), types().map(([k, l]) => [k, l + ' · ' + (k === 'all' ? M.qcm.length : M.qcm.filter(x => x.type === k).length)]),
       qcm.type, k => { qcm.type = k; renderQcmChips(); qcmStart(); });
     chips($('#qcm-chips'), [['all', 'Tous les thèmes']].concat(Object.entries(M.themes).filter(([k]) => used.has(k)).map(([k, t]) => [k, t.nom, t.couleur])),
       qcm.theme, k => { qcm.theme = k; renderQcmChips(); qcmStart(); });
+    // Filtre par partie / TP seulement si les questions de la matière en sont étiquetées.
+    const parTp = M.tps && M.qcm.some(x => x.tps);
+    $('#qcm-tp-chips').hidden = !parTp;
+    if (parTp) chips($('#qcm-tp-chips'), [['all', M.filtreLabel || 'Tous les TP']].concat(Object.entries(M.tps)),
+      qcm.tp, k => { qcm.tp = k; renderQcmChips(); qcmStart(); });
   }
 
   function renderQcm() {
@@ -210,6 +227,7 @@
       `<li><button type="button" class="choix" data-ci="${ci}"><span class="lettre">${'ABCD'[pos]}</span><span class="txt">${item.choix[ci]}</span></button></li>`).join('');
     $('#qcm-expl').hidden = true;
     $('#qcm-next').hidden = true;
+    math($('#qcm-card'));
   }
 
   function answer(ci) {
@@ -227,6 +245,7 @@
     $('#qcm-expl').innerHTML = `<strong>${good ? '✓ Bonne réponse' : '✗ Raté'}</strong>${item.expl}`;
     $('#qcm-expl').className = 'qcm-expl ' + (good ? 'ok' : 'ko');
     $('#qcm-expl').hidden = false;
+    math($('#qcm-expl'));
     $('#qcm-next').hidden = false;
     $('#qcm-next').textContent = qcm.i === qcm.deck.length - 1 ? 'Voir mon score →' : 'Question suivante →';
     $('#qcm-score').textContent = `✓ ${qcm.ok}   ✗ ${qcm.ko.length}`;
@@ -244,7 +263,7 @@
       : 'Relis les fiches correspondantes, puis retente : ça va venir.';
     $('#qcm-retry-ko').hidden = !qcm.ko.length;
     // Le meilleur score n'a de sens que sur le QCM complet, pas sur un filtre ou une reprise des erreurs.
-    if (qcm.full && qcm.theme === 'all' && qcm.type === 'all') {
+    if (qcm.full && qcm.theme === 'all' && qcm.type === 'all' && qcm.tp === 'all') {
       const best = store.get('qcm-best:' + M.id, 0);
       if (pct > best) store.set('qcm-best:' + M.id, pct);
     }
@@ -270,6 +289,7 @@
     $('#lexique').innerHTML = M.lexique
       .filter(([m, d]) => !q || norm(m + ' ' + plain(d)).includes(q))
       .map(([m, d]) => `<div><dt>${esc(m)}</dt><dd>${d}</dd></div>`).join('');
+    math($('#lexique'));
   }
   $('#lex-search').addEventListener('input', renderLexique);
 

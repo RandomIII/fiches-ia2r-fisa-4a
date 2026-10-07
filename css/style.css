@@ -197,6 +197,37 @@ tr:last-child td { border-bottom: 0; }
 
 .regles li { margin: 8px 0; }
 
+/* ---------- Graphes de signaux ---------- */
+.plot { margin: 12px 0; padding: 10px 8px 6px; border: 1px dashed var(--line); border-radius: 10px; background: color-mix(in srgb, var(--soft) 50%, transparent); text-align: center; }
+.plot figcaption { font-size: 12.5px; color: var(--muted); margin-top: 2px; }
+.plot-svg { max-width: 100%; height: auto; display: inline-block; overflow: visible; }
+.plots { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px; margin: 12px 0; }
+.plots .plot { margin: 0; }
+.p-axis { stroke: var(--muted); stroke-width: 1.1; }
+.p-axhead { fill: var(--muted); }
+.p-tick { stroke: var(--muted); stroke-width: 1; }
+.p-guide { stroke: var(--muted); stroke-width: .8; stroke-dasharray: 3 3; opacity: .7; }
+.p-band { fill: var(--c, #3b6fd8); opacity: .1; }
+.p-band.ko { fill: var(--ko); opacity: .14; }
+.p-lbl { font: italic 12px "JetBrains Mono", monospace; fill: var(--muted); }
+.p-tl { font: 11px "JetBrains Mono", monospace; fill: var(--muted); }
+.p-dl { fill: var(--ink); }
+.p-curve { fill: none; stroke: var(--c, #3b6fd8); stroke-width: 2; stroke-linejoin: round; }
+.p-curve.c2, .p-stem.c2, .p-dirac.c2 { stroke: #d4730b; } .p-dot.c2, .p-dhead.c2 { fill: #d4730b; stroke: #d4730b; }
+.p-curve.c3 { stroke: var(--ok); }
+.p-curve.muted { stroke: var(--muted); stroke-width: 1.2; }
+.p-dash { stroke-dasharray: 5 4; }
+.p-dirac { stroke: var(--c, #3b6fd8); stroke-width: 2; }
+.p-dhead { fill: var(--c, #3b6fd8); }
+.p-stem { stroke: var(--c, #3b6fd8); stroke-width: 1.8; }
+.p-dot { fill: var(--c, #3b6fd8); stroke: var(--c, #3b6fd8); }
+.p-pole { stroke: var(--ko); stroke-width: 2.2; fill: none; }
+.p-zero { stroke: #3b6fd8; stroke-width: 2; fill: none; }
+.b-methode { border-color: #8250df; } .b-methode > strong { color: #8250df; }
+.code-mat pre { color: var(--code-ink); }
+.katex { font-size: 1.05em; }
+.katex-display { margin: .6em 0; overflow-x: auto; overflow-y: hidden; padding: 2px 0; }
+
 /* ---------- Accueil : matières ---------- */
 .matieres { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 20px 0 48px; }
 .matiere {
