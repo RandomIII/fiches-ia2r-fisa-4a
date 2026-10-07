@@ -21,7 +21,7 @@
 
   // Coût total des deux options du cours : sous-traiter à 45 €/pièce, ou investir 300 k€ et produire à 20 €/pièce.
   const makeOrBuyPlot = cap => plot({ x: [0, 22000], y: [0, 1000000], w: 380, h: 190, xl: 'Q (pièces/an)', yl: 'coût total (€)',
-    fns: [{ f: q => 45 * q, cls: 'c2' }, { f: q => 300000 + 20 * q }], vlines: [12000],
+    fns: [{ f: q => 45 * q, cls: 'c2' }, { f: q => 300000 + 20 * q, cls: 'c1' }], vlines: [12000],
     xt: [[12000, '12 000'], [20000, '20 000']], yt: [[300000, '300 k'], [540000, '540 k'], [900000, '900 k']],
     texts: [{ x: 6000, y: 420000, t: 'interne', cls: '' }, { x: 17000, y: 640000, t: 'sous-traitance' }], cap });
 
@@ -344,9 +344,7 @@ ${piege(R`<p>« 3 <b>points</b> » ≠ 3 % : une marge qui passe de 40 % à 37 %
   resume: 'Une start-up qui grossit vite et perd de l’argent, face à une PME stable et rentable.',
   corps: R`
 ${table(['', 'TechNova (3 ans)', 'MecaNova (10 ans)'], [
-  ['CA', '8 000 000 € (+45 %)', '4 200 000 € (+3 %)'],
   ['Marge brute', '4 800 000 € (60 %)', '2 400 000 € (57 %)'],
-  ['EBE', '−200 000 € (−2,5 %)', '1 300 000 € (31 %)'],
   ['Résultat net', '−900 000 €', '480 000 € (11 %)'],
   ['Trésorerie', '1 200 000 € (−60 % en 1 an)', '900 000 € (stable)']
 ])}
@@ -518,30 +516,19 @@ ${methode(R`<p><b>Fidéliser</b> : programme de fidélité, abonnement, service 
   ];
 
   const LEXIQUE = [
-    ['B2B / B2C', 'Business to Business (vendre à des entreprises) / Business to Consumer (vendre à des particuliers).'],
-    ['BFR', 'Besoin en fonds de roulement : argent bloqué par le décalage entre paiements fournisseurs et encaissements clients.'],
     ['Burn rate', 'Trésorerie consommée par mois par une entreprise pas encore rentable.'],
-    ['CA', 'Chiffre d’affaires : tout ce qui est facturé aux clients.'],
     ['Ciblage', 'Choix du ou des segments de marché à servir (indifférencié, différencié, niche).'],
     ['Cœur de métier', 'Activité qui fait la différence de l’entreprise ; on évite de la sous-traiter.'],
-    ['Coût fixe', 'Coût indépendant du volume produit (loyer, encadrement, assurance).'],
-    ['Coût variable', 'Coût proportionnel au volume produit (matières, énergie des machines).'],
     ['Créances clients', 'Sommes facturées mais pas encore encaissées.'],
     ['Croisement SWOT', 'Associer un item interne et un externe (SO, ST, WO, WT) pour en tirer une action.'],
-    ['D2C', 'Direct to Consumer : la marque vend directement, sans intermédiaire.'],
     ['Dettes fournisseurs', 'Achats reçus mais pas encore payés.'],
     ['Dividendes', 'Part du résultat net versée aux actionnaires (taxée ≈ 31 %).'],
-    ['EBE', 'Excédent brut d’exploitation : ce qu’il reste après les coûts de fonctionnement.'],
-    ['EI / micro-entreprise', 'Entreprise individuelle, à son nom propre, responsabilité illimitée, charges ≈ 25 % du CA.'],
-    ['EURL / SARL', 'Société à responsabilité limitée (unipersonnelle ou non) ; dirigeant non salarié, charges ≈ 45 %.'],
     ['Faiblesse', 'Élément interne qui désavantage le projet, sur lequel on peut agir.'],
     ['Force', 'Atout interne qui donne un avantage concurrentiel difficile à copier.'],
     ['Freemium', 'Version gratuite de base + options payantes (Spotify).'],
     ['Grille d’arbitrage', 'Critères qualitatifs du « faire ou faire faire » : flexibilité, qualité/délais, dépendance, cœur de métier.'],
-    ['IR / IS', 'Impôt sur le revenu (payé par l’entrepreneur) / impôt sur les sociétés (15 % puis 25 %).'],
     ['Make or buy', 'Faire (internaliser) ou faire faire (sous-traiter).'],
     ['Marge brute', 'CA moins le coût direct des produits vendus.'],
-    ['Marketing', 'Ensemble des décisions qui font qu’un produit rencontre un besoin réel.'],
     ['Marketing mix (4P)', 'Produit, Prix, Place (distribution), Promotion.'],
     ['Menace', 'Facteur externe qui peut nuire au projet, même sans faute de sa part.'],
     ['Niche', 'Ciblage d’un segment étroit et très spécifique (Rolex).'],
@@ -550,12 +537,55 @@ ${methode(R`<p><b>Fidéliser</b> : programme de fidélité, abonnement, service 
     ['Responsabilité limitée', 'Les associés ne perdent au plus que leurs apports.'],
     ['Résultat net', 'Ce qu’il reste à la fin, après toutes les charges et impôts ; revient aux actionnaires.'],
     ['Runway', 'Nombre de mois avant d’être à court de trésorerie = trésorerie / burn rate.'],
-    ['SAS / SASU', 'Société par actions simplifiée (unipersonnelle) ; dirigeant assimilé salarié, charges ≈ 80–90 %.'],
     ['Segmentation', 'Découpage du marché en groupes homogènes (géographiques, démographiques, psychographiques, comportementaux).'],
-    ['Seuil d’indifférence', 'Volume Q* = CF / (CVext − CVint) où sous-traiter et internaliser coûtent pareil.'],
-    ['SWOT', 'Forces, Faiblesses (internes), Opportunités, Menaces (externes).'],
     ['Trésorerie', 'Argent réellement disponible en banque à un instant donné.']
   ];
+
+  /*
+   * Abréviations : [forme développée, définition courte].
+   * Elles alimentent le lexique et les info-bulles affichées au survol partout dans la matière.
+   */
+  const ABREV = {
+    'B2B': ['Business to Business', 'une entreprise vend à d’autres entreprises (ex. Salesforce).'],
+    'B2C': ['Business to Consumer', 'une entreprise vend directement à des particuliers (ex. Zara).'],
+    'BFR': ['Besoin en fonds de roulement', 'argent bloqué par le décalage entre paiement des fournisseurs et encaissement des clients = créances clients − dettes fournisseurs.'],
+    'CA': ['Chiffre d’affaires', 'tout ce qui est facturé aux clients sur la période.'],
+    'CF': ['Coûts fixes', 'coûts payés même si la production est nulle (loyer, encadrement, assurances, machine).'],
+    'CV': ['Coûts variables', 'coûts proportionnels au volume produit (matières, énergie des machines).'],
+    'CVext': ['Coût variable externe', 'coût par pièce si on sous-traite (ex. 45 €/pièce).'],
+    'CVint': ['Coût variable interne', 'coût par pièce si on fabrique soi-même (ex. 20 €/pièce).'],
+    'Q*': ['Seuil d’indifférence', 'volume annuel où sous-traiter et internaliser coûtent pareil : Q* = CF / (CVext − CVint).'],
+    'CR': ['Compte rendu', 'document de synthèse rendu en fin de projet (par équipe ou par poste).'],
+    'CRM': ['Customer Relationship Management', 'logiciel de gestion de la relation client (fichier clients, suivi commercial).'],
+    'CSG': ['Contribution sociale généralisée', 'prélèvement social sur les revenus, dont les dividendes.'],
+    'CRDS': ['Contribution au remboursement de la dette sociale', 'autre prélèvement social, payé avec la CSG.'],
+    'D2C': ['Direct to Consumer', 'la marque vend directement au client, sans intermédiaire.'],
+    'EBE': ['Excédent brut d’exploitation', 'ce qu’il reste après les coûts de fonctionnement (salaires, loyers) : la rentabilité de l’activité courante.'],
+    'EI': ['Entreprise individuelle', 'entreprise au nom propre de l’entrepreneur (dont la micro-entreprise) ; responsabilité illimitée.'],
+    'EURL': ['Entreprise unipersonnelle à responsabilité limitée', 'SARL à un seul associé ; dirigeant non salarié, charges ≈ 45 %.'],
+    'IA': ['Intelligence artificielle', 'ici : publicité ciblée et optimisée automatiquement (Google Ads, Meta Ads).'],
+    'IR': ['Impôt sur le revenu', 'payé par l’entrepreneur sur ses revenus personnels.'],
+    'IS': ['Impôt sur les sociétés', 'payé par la société sur son bénéfice : 15 % jusqu’à 42 500 €, 25 % au-delà.'],
+    'k€': ['Kilo-euros', 'milliers d’euros (300 k€ = 300 000 €).'],
+    'M€': ['Millions d’euros', '1,2 M€ = 1 200 000 €.'],
+    'MKT': ['Marketing', 'ensemble des décisions qui font qu’un produit rencontre un besoin réel.'],
+    'PME': ['Petite ou moyenne entreprise', 'entreprise de moins de 250 salariés.'],
+    'R&D': ['Recherche et développement', 'activité de conception de nouveaux produits ou technologies.'],
+    'RH': ['Ressources humaines', 'service qui gère le personnel (recrutement, paie, formation).'],
+    'SARL': ['Société à responsabilité limitée', 'société de 2 associés ou plus ; responsabilité limitée aux apports ; gérant non salarié.'],
+    'SAS': ['Société par actions simplifiée', 'statut souple, apprécié des investisseurs ; responsabilité limitée ; dirigeant assimilé salarié (charges ≈ 80–90 %).'],
+    'SASU': ['Société par actions simplifiée unipersonnelle', 'SAS à un seul associé.'],
+    'SO': ['Strengths × Opportunities', 'croisement « attaquer » : utiliser une force pour saisir une opportunité.'],
+    'ST': ['Strengths × Threats', 'croisement « défendre » : utiliser une force pour neutraliser une menace.'],
+    'SWOT': ['Strengths, Weaknesses, Opportunities, Threats', 'Forces, Faiblesses (internes), Opportunités, Menaces (externes).'],
+    'UE': ['Union européenne', 'ici : source de réglementations (ex. obligation de bornes de recharge d’ici 2027).'],
+    'WO': ['Weaknesses × Opportunities', 'croisement « renforcer » : corriger une faiblesse pour saisir une opportunité.'],
+    'WT': ['Weaknesses × Threats', 'croisement « sécuriser » : limiter les dégâts quand une faiblesse rencontre une menace.']
+  };
+  // Lexique final : mots du cours + abréviations (« CA — Chiffre d’affaires »), triés.
+  const LEXIQUE_COMPLET = LEXIQUE
+    .concat(Object.entries(ABREV).map(([k, [dev, def]]) => [`${k} — ${dev}`, def.charAt(0).toUpperCase() + def.slice(1)]))
+    .sort((a, b) => a[0].localeCompare(b[0], 'fr', { sensitivity: 'base' }));
 
   MATIERES.push({
     id: 'entrepreneuriat',
@@ -572,7 +602,8 @@ ${methode(R`<p><b>Fidéliser</b> : programme de fidélité, abonnement, service 
     },
     pratiqueLabel: 'Pratique (calculs, cas, classement)',
     memoMaxPt: 12,
-    themes: THEMES, tps: TPS, tpsCourt: TPS_COURT, fiches: FICHES, qcm: QCM, lexique: LEXIQUE,
+    themes: THEMES, tps: TPS, tpsCourt: TPS_COURT, fiches: FICHES, qcm: QCM, lexique: LEXIQUE_COMPLET,
+    abreviations: ABREV,
     makeOrBuyPlot
   });
 })();

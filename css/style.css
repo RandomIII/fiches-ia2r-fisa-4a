@@ -405,3 +405,9 @@ kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5p
 .ressources { display: flex; flex-wrap: wrap; gap: 8px 14px; margin-top: 14px; }
 .ressource { display: inline-flex; gap: 6px; }
 .ressource .btn { text-decoration: none; font-size: 13px; padding: 6px 12px; }
+
+/* ---------- Abréviations ---------- */
+abbr.abbr { text-decoration: underline dotted; text-decoration-thickness: 1px; text-underline-offset: 2px; cursor: help; }
+abbr.abbr:focus { outline: 2px solid color-mix(in srgb, #3b6fd8 60%, transparent); border-radius: 3px; }
+.abbr-tip { position: fixed; z-index: 1000; max-width: min(280px, calc(100vw - 16px)); padding: 7px 10px; border-radius: 8px;
+  background: var(--ink); color: var(--bg); font: 500 13px/1.4 Inter, system-ui, sans-serif; box-shadow: 0 6px 20px rgba(0, 0, 0, .3); pointer-events: none; }

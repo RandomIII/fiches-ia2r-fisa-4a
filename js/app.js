@@ -53,6 +53,65 @@
     fitSheets();
   });
 
+  /* ---------- Abréviations : soulignées, signification au survol ou au toucher ---------- */
+  let abbrRe = null;
+  function prepareAbbr(m) {
+    const keys = Object.keys(m.abreviations || {}).sort((a, b) => b.length - a.length);
+    const escRe = k => k.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    // Pas de lettre collée avant ou après : « CA » oui, « CAP » non.
+    abbrRe = keys.length ? new RegExp(`(?<![\\p{L}])(${keys.map(escRe).join('|')})(?![\\p{L}\\p{N}])`, 'gu') : null;
+  }
+  function abbrify(el) {
+    if (!el || !abbrRe || !M || !M.abreviations) return;
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT, {
+      acceptNode: n => n.parentElement.closest('code, pre, .katex, svg, abbr, script, style, .sheet-head')
+        ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT
+    });
+    const nodes = [];
+    while (walker.nextNode()) nodes.push(walker.currentNode);
+    nodes.forEach(node => {
+      const txt = node.textContent;
+      abbrRe.lastIndex = 0;
+      if (!abbrRe.test(txt)) return;
+      abbrRe.lastIndex = 0;
+      const frag = document.createDocumentFragment();
+      let last = 0, m;
+      while ((m = abbrRe.exec(txt))) {
+        frag.append(txt.slice(last, m.index));
+        const [dev, def] = M.abreviations[m[1]];
+        const a = document.createElement('abbr');
+        a.className = 'abbr';
+        a.textContent = m[1];
+        a.dataset.def = `${dev} : ${def}`;
+        if (!node.parentElement.closest('button')) a.tabIndex = 0;
+        frag.append(a);
+        last = abbrRe.lastIndex;
+      }
+      frag.append(txt.slice(last));
+      node.replaceWith(frag);
+    });
+  }
+  const tip = document.createElement('div');
+  tip.className = 'abbr-tip';
+  tip.hidden = true;
+  document.body.appendChild(tip);
+  function showTip(a) {
+    tip.textContent = a.dataset.def;
+    tip.hidden = false;
+    const r = a.getBoundingClientRect(), w = tip.offsetWidth, h = tip.offsetHeight;
+    const left = Math.min(Math.max(8, r.left + r.width / 2 - w / 2), innerWidth - w - 8);
+    const top = r.top - h - 8 > 8 ? r.top - h - 8 : r.bottom + 8;
+    tip.style.left = left + 'px'; tip.style.top = top + 'px';
+  }
+  const hideTip = () => { tip.hidden = true; };
+  // La bulle doit vivre dans la fenêtre modale quand une fiche est ouverte, sinon elle passe dessous.
+  const tipHost = () => (modal.open ? modal : document.body);
+  document.addEventListener('mouseover', e => { const a = e.target.closest && e.target.closest('abbr.abbr'); if (a) { tipHost().appendChild(tip); showTip(a); } });
+  document.addEventListener('mouseout', e => { if (e.target.closest && e.target.closest('abbr.abbr')) hideTip(); });
+  document.addEventListener('focusin', e => { if (e.target.matches && e.target.matches('abbr.abbr')) { tipHost().appendChild(tip); showTip(e.target); } });
+  document.addEventListener('focusout', hideTip);
+  document.addEventListener('scroll', hideTip, true);
+
   const norm = s => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
   const plain = html => html.replace(/<[^>]+>/g, ' ');
 
@@ -112,6 +171,7 @@
       card(k, (info[k] && info[k].titre) || partieNom(k), (info[k] && info[k].desc) || '', (info[k] && info[k].couleur) || M.couleur)
     ).join('') + card('tout', 'Toutes les parties', 'Tout le cours d’un coup : toutes les fiches, le QCM complet et les mémos de chaque partie.', M.couleur);
     math($('#parties'));
+    abbrify($('#parties'));
   }
 
   /* ================= FICHES ================= */
@@ -122,6 +182,7 @@
     const sameM = M === m;
     M = m; scope = sc;
     if (!sameM) {
+      prepareAbbr(m);
       done = doneSet(m);
       searchIndex = new Map(m.fiches.map(f => [f.id, norm(f.titre + ' ' + f.resume + ' ' + plain(f.corps))]));
     }
@@ -170,6 +231,7 @@
     }).join('');
     $('#empty').hidden = ui.visible.length > 0;
     math($('#grid'));
+    abbrify($('#grid'));
     const all = M.fiches.filter(inScope);
     const n = all.filter(f => done.has(f.id)).length, tot = all.length;
     $('#progress-bar').style.width = (tot ? 100 * n / tot : 0) + '%';
@@ -194,6 +256,7 @@
     $('#m-resume').textContent = f.resume;
     $('#m-body').innerHTML = f.corps;
     math($('#m-resume')); math($('#m-body'));
+    abbrify($('#m-resume')); abbrify($('#m-body'));
     $('#m-prev').disabled = ui.current <= 0;
     $('#m-next').disabled = ui.current >= ui.list.length - 1;
     renderDoneBtn(f.id);
@@ -290,6 +353,7 @@
     $('#qcm-expl').hidden = true;
     $('#qcm-next').hidden = true;
     math($('#qcm-card'));
+    abbrify($('#qcm-q')); abbrify($('#qcm-choix'));
   }
 
   function answer(ci) {
@@ -308,6 +372,7 @@
     $('#qcm-expl').className = 'qcm-expl ' + (good ? 'ok' : 'ko');
     $('#qcm-expl').hidden = false;
     math($('#qcm-expl'));
+    abbrify($('#qcm-expl'));
     $('#qcm-next').hidden = false;
     $('#qcm-next').textContent = qcm.i === qcm.deck.length - 1 ? 'Voir mon score →' : 'Question suivante →';
     $('#qcm-score').textContent = `✓ ${qcm.ok}   ✗ ${qcm.ko.length}`;
@@ -425,6 +490,7 @@
       .filter(([m, d]) => !q || norm(m + ' ' + plain(d)).includes(q))
       .map(([m, d]) => `<div><dt>${esc(m)}</dt><dd>${d}</dd></div>`).join('');
     math($('#lexique'));
+    document.querySelectorAll('#lexique dd').forEach(abbrify);
   }
   $('#lex-search').addEventListener('input', renderLexique);
 

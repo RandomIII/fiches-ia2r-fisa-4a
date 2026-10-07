@@ -11,6 +11,7 @@
   const F = h => `<div class="mf">${h}</div>`;
   const EX = (t, h) => `<div class="mex"><b>${t}</b> ${h}</div>`;
   const P = h => `<div class="mp"><b>Pièges.</b> ${h}</div>`;
+  const ABBR = (...keys) => S('Abréviations', `<p>${keys.map(k => `<b>${k}</b> ${M.abreviations[k][0].toLowerCase()}`).join(' · ')}</p>`);
   const swot = (s, w, o, t) => table(['<b>Forces</b> (interne +)', '<b>Faiblesses</b> (interne −)'], [[s, w]]) + table(['<b>Opportunités</b> (externe +)', '<b>Menaces</b> (externe −)'], [[o, t]]);
 
   M.memos = {
@@ -62,6 +63,7 @@ ${table(['Case', 'Définition', 'Exemple'], [
   ['<b>Menaces</b>', 'concurrent, techno, risques macro (coûts, réglementation) ; pas ta faute, mais l’ignorer oui', 'Revolut / Qonto pour les banques']
 ])}
 `)}
+${ABBR('CF', 'CV', 'CVext', 'CVint', 'Q*', 'SWOT', 'SO', 'ST', 'WO', 'WT', 'R&D', 'UE', 'k€')}
 ${S('Marche à suivre et croisements', R`
 <ol><li><b>Brainstorming</b> : tout lister sans classer.</li><li><b>Classer</b> par impact.</li><li><b>Croiser</b> un interne + un externe → une question → une <b>action</b>. Diagnostic → stratégie claire.</li></ol>
 ${table(['', 'Nom', 'Question'], [
@@ -149,6 +151,7 @@ ${table(['Ciblage', 'Principe', 'Exemple'], [['Indifférencié', 'un seul produi
 <p><b>C. Positionner</b> : comment le produit doit être <b>perçu face à la concurrence</b> (prix, qualité, innovation, valeurs).</p>
 ${K(R`<b>Phrase de positionnement</b> : « Pour [cible], [produit] est le seul [catégorie] qui [bénéfice clé], contrairement à [concurrent]. »<br><b>Carte perceptive</b> : placer les concurrents sur 2 axes (ex. prix × qualité perçue) et viser une case libre et désirable.`)}
 `)}
+${ABBR('MKT', 'B2B', 'B2C', 'D2C', 'CRM', 'IA')}
 ${S('Comportement du consommateur', R`
 <p>Pourquoi on achète : 4 familles de facteurs.</p>
 ${table(['Facteurs', 'Contenu', 'Exemple'], [
@@ -213,6 +216,7 @@ p3: {
   labels: ['Cours', 'Exercices'],
   pages: [
 R`
+${ABBR('CA', 'EBE', 'BFR', 'IS', 'IR', 'EI', 'SAS', 'SASU', 'SARL', 'EURL', 'CSG', 'CRDS', 'PME', 'CR', 'k€', 'M€')}
 ${S('Statuts juridiques', R`
 ${table(['', 'Micro / EI', 'SAS / SASU', 'SARL / EURL'], [
   ['Création', 'à son nom, sans statuts (≈ 30 min)', 'statuts + capital social', 'statuts + capital'],
