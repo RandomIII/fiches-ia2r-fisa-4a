@@ -197,31 +197,72 @@ tr:last-child td { border-bottom: 0; }
 
 .regles li { margin: 8px 0; }
 
-/* ---------- Quiz ---------- */
-.quiz-zone { max-width: 640px; margin: 18px auto 48px; }
-.quiz-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; margin-bottom: 8px; white-space: pre; }
-.flip { perspective: 1200px; cursor: pointer; outline: none; }
-.flip:focus-visible .face { outline: 2px solid #3b6fd8; outline-offset: 3px; }
-.flip-inner { position: relative; min-height: 260px; transition: transform .45s; transform-style: preserve-3d; }
-.flip.turned .flip-inner { transform: rotateY(180deg); }
-.face {
-  position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden;
-  background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c); border-radius: 18px;
-  box-shadow: var(--shadow); padding: 28px; display: flex; flex-direction: column; justify-content: center; gap: 10px;
+/* ---------- Accueil : matières ---------- */
+.matieres { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 16px; margin: 20px 0 48px; }
+.matiere {
+  position: relative; display: flex; flex-direction: column; gap: 4px; text-decoration: none; overflow: hidden;
+  background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 26px 22px 20px; box-shadow: var(--shadow);
+  transition: transform .15s, border-color .15s;
 }
-.face p { margin: 0; font-size: 19px; line-height: 1.5; }
-.front p { font-weight: 700; letter-spacing: -.01em; }
-.back { transform: rotateY(180deg); }
-.back p { font-size: 17px; }
-.back code { font-size: .85em; background: var(--soft); border: 1px solid var(--line); padding: 1px 5px; border-radius: 5px; }
-.face-tag { position: absolute; top: 14px; left: 18px; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--c); }
-.hint { position: absolute; bottom: 14px; left: 0; right: 0; text-align: center; font-size: 12px; color: var(--muted); }
-.quiz-actions { display: flex; justify-content: center; gap: 10px; margin-top: 16px; }
-.quiz-actions .btn { min-width: 150px; }
-.quiz-end { text-align: center; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 28px; }
-.quiz-end p { font-size: 18px; margin: 0 0 6px; }
+a.matiere:hover { transform: translateY(-3px); border-color: color-mix(in srgb, var(--c) 55%, var(--line)); }
+.mat-band { position: absolute; inset: 0 0 auto 0; height: 6px; background: linear-gradient(90deg, var(--c), color-mix(in srgb, var(--c) 40%, #3b6fd8)); }
+.matiere h2 { margin: 0; font-size: 22px; letter-spacing: -.02em; }
+.mat-sub { margin: 0; color: var(--c); font-weight: 700; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; }
+.mat-desc { margin: 8px 0 0; color: var(--muted); font-size: 14px; flex: 1; }
+.mat-stats { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 14px; font-size: 13px; color: var(--muted); }
+.mat-stats b { color: var(--ink); }
+.progress.small { margin-top: 12px; font-size: 12px; }
+.progress.small .bar { flex: 0 0 90px; height: 6px; }
+.matiere.soon { border-style: dashed; box-shadow: none; background: transparent; justify-content: center; align-items: center; text-align: center; min-height: 200px; }
+.matiere.soon h2 { color: var(--muted); font-size: 18px; }
+.back { display: inline-block; margin-bottom: 10px; font-size: 13px; color: var(--muted); text-decoration: none; }
+.back:hover { color: var(--ink); }
+
+/* ---------- QCM ---------- */
+.qcm-filters { display: grid; gap: 8px; margin: 18px 0 4px; }
+.qcm-zone { max-width: 760px; margin: 14px auto 48px; }
+.qcm-meta { display: flex; justify-content: space-between; color: var(--muted); font-size: 13px; margin-bottom: 6px; white-space: pre; }
+.bar { height: 6px; background: var(--soft); border-radius: 99px; overflow: hidden; }
+.bar span { display: block; height: 100%; width: 0; background: linear-gradient(90deg, var(--ok), #3b6fd8); border-radius: inherit; transition: width .3s; }
+.qcm-bar { margin-bottom: 14px; }
+.qcm-card {
+  background: var(--card); border: 1px solid var(--line); border-top: 5px solid var(--c); border-radius: 18px;
+  box-shadow: var(--shadow); padding: 22px 24px;
+}
+.qcm-tags { display: flex; gap: 6px; align-items: center; flex-wrap: wrap; }
+.type-tag { font-size: 12px; font-weight: 600; border-radius: 6px; padding: 1px 8px; border: 1px solid var(--line); color: var(--muted); }
+.type-tag.pratique { color: #d4730b; border-color: color-mix(in srgb, #d4730b 40%, var(--line)); }
+.qcm-q { font-size: 19px; line-height: 1.4; margin: 12px 0 6px; letter-spacing: -.01em; }
+#qcm-media .uml { margin: 10px 0; }
+.qcm-choix { list-style: none; padding: 0; margin: 14px 0 0; display: grid; gap: 8px; }
+.choix {
+  width: 100%; display: flex; gap: 12px; align-items: flex-start; text-align: left; cursor: pointer;
+  font: inherit; font-size: 15px; color: var(--ink); background: var(--card);
+  border: 1.5px solid var(--line); border-radius: 12px; padding: 11px 14px; transition: border-color .12s, background .12s;
+}
+.choix:hover:not(:disabled) { border-color: var(--c); background: color-mix(in srgb, var(--c) 6%, var(--card)); }
+.choix:disabled { cursor: default; opacity: .6; }
+.choix .lettre {
+  flex: none; width: 26px; height: 26px; border-radius: 7px; display: grid; place-items: center;
+  font-weight: 700; font-size: 13px; background: var(--soft); color: var(--muted);
+}
+.choix .txt { padding-top: 2px; }
+.choix code { font-size: .86em; background: var(--soft); border: 1px solid var(--line); padding: 1px 5px; border-radius: 5px; overflow-wrap: anywhere; }
+.choix.bonne { opacity: 1; border-color: var(--ok); background: color-mix(in srgb, var(--ok) 12%, var(--card)); }
+.choix.bonne .lettre { background: var(--ok); color: #fff; }
+.choix.fausse { opacity: 1; border-color: var(--ko); background: color-mix(in srgb, var(--ko) 10%, var(--card)); }
+.choix.fausse .lettre { background: var(--ko); color: #fff; }
+.qcm-expl { margin-top: 14px; border-radius: 10px; padding: 12px 14px; border-left: 4px solid; background: var(--soft); font-size: 15px; }
+.qcm-expl strong { display: block; margin-bottom: 3px; }
+.qcm-expl.ok { border-color: var(--ok); } .qcm-expl.ok strong { color: var(--ok); }
+.qcm-expl.ko { border-color: var(--ko); } .qcm-expl.ko strong { color: var(--ko); }
+.qcm-expl code { font-size: .86em; background: var(--card); border: 1px solid var(--line); padding: 1px 5px; border-radius: 5px; overflow-wrap: anywhere; }
+.qcm-next { display: flex; justify-content: flex-end; margin-top: 14px; }
+.qcm-end { text-align: center; background: var(--card); border: 1px solid var(--line); border-radius: 18px; padding: 30px 22px; }
+.qcm-end .big { font-size: 30px; font-weight: 800; margin: 0 0 6px; letter-spacing: -.02em; }
+.qcm-end p { margin: 0 0 6px; color: var(--muted); }
+.qcm-actions { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 16px; }
 kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5px; padding: 0 5px; font-size: .85em; background: var(--card); }
-#quiz-chips { margin-top: 18px; justify-content: center; }
 
 /* ---------- Lexique ---------- */
 #lex-search { margin: 16px 0; }
@@ -244,8 +285,7 @@ kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5p
   .m-body :not(pre) > code { white-space: normal; overflow-wrap: anywhere; }
   .m-foot .lbl { display: none; }
   .lexique { grid-template-columns: 1fr; }
-  .face { padding: 36px 20px 34px; }
-  .face p { font-size: 17px; }
-  .flip-inner { min-height: 300px; }
-  .quiz-actions .btn { min-width: 0; flex: 1; }
+  .matieres { grid-template-columns: 1fr; }
+  .qcm-card { padding: 18px 16px; }
+  .qcm-q { font-size: 17px; }
 }
