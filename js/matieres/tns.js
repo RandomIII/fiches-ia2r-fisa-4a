@@ -17,11 +17,22 @@
   const TPS = {
     p1: 'Partie 1 · Continu & Fourier',
     p2: 'Partie 2 · Échantillonnage',
-    p3: 'Partie 3 · Discret & filtres'
+    p3: 'Partie 3 · Discret & TFtd/TFD',
+    p4: 'Partie 4 · Filtres numériques'
   };
-  const TPS_COURT = { p1: 'Partie 1', p2: 'Partie 2', p3: 'Partie 3' };
+  const TPS_COURT = { p1: 'Partie 1', p2: 'Partie 2', p3: 'Partie 3', p4: 'Partie 4' };
   const { rect, tri, u, sinc } = SIG;
   const PI = Math.PI, cos = Math.cos, sin = Math.sin, abs = Math.abs;
+  // |H(f)| d'un filtre (b, a) quelconque, pour tracer les exemples du cours.
+  const gainBA = (b, a, fe) => f => {
+    const w = 2 * PI * f / fe;
+    const ev = c => c.reduce((s, ck, k) => [s[0] + ck * cos(k * w), s[1] - ck * sin(k * w)], [0, 0]);
+    const [nr, ni] = ev(b), [dr, di] = ev(a);
+    return Math.hypot(nr, ni) / Math.hypot(dr, di);
+  };
+  const W50 = 2 * PI * 50 / 1000, R95 = 0.95;
+  const NOTCH_B0 = [1, -2 * cos(W50), 1], NOTCH_A = [1, -2 * R95 * cos(W50), R95 * R95];
+  const NOTCH_B = NOTCH_B0.map(x => x * NOTCH_A.reduce((s, v) => s + v) / NOTCH_B0.reduce((s, v) => s + v));
 
   const FICHES = [
 
@@ -635,7 +646,7 @@ ${retenir(R`<p><b>Périodicité dans un domaine ⟺ discrétisation dans l'autre
 `},
 
 {
-  id: 'equation-differences', theme: 'filtres', tps: ['p3'],
+  id: 'equation-differences', theme: 'filtres', tps: ['p4'],
   titre: 'Filtre numérique : équation aux différences et réponse impulsionnelle',
   resume: 'y(n) se calcule avec les entrées actuelles/passées (et les sorties passées). h(n) = la sortie quand on envoie δ(n).',
   corps: R`
@@ -650,7 +661,7 @@ ${methode(R`<p><b>Calculer $h(n)$ à la main</b> : poser $x(n)=\delta(n)$, parti
 `},
 
 {
-  id: 'transformee-z', theme: 'filtres', tps: ['p3'],
+  id: 'transformee-z', theme: 'filtres', tps: ['p4'],
   titre: 'Transformée en Z et fonction de transfert H(z)',
   resume: 'Un retard d’un échantillon devient z⁻¹. H(z) = Y(z)/X(z) se lit directement sur l’équation aux différences.',
   corps: R`
@@ -670,7 +681,7 @@ ${retenir(R`<p><b>Pôles</b> = racines du dénominateur, <b>zéros</b> = racines
 `},
 
 {
-  id: 'table-tz', theme: 'filtres', tps: ['p3'],
+  id: 'table-tz', theme: 'filtres', tps: ['p4'],
   titre: 'Table des transformées en Z (unilatérales)',
   resume: 'Les paires δ, u, n·u, aⁿu, cos, sin avec leur région de convergence, et les propriétés (retards, valeurs initiale et finale).',
   corps: R`
@@ -712,7 +723,7 @@ ${methode(R`<p><b>Inverser $H(z)$</b> : écrire en éléments simples $\frac{A z
 `},
 
 {
-  id: 'stabilite', theme: 'filtres', tps: ['p3'],
+  id: 'stabilite', theme: 'filtres', tps: ['p4'],
   titre: 'Pôles, zéros et stabilité',
   resume: 'Un filtre causal est stable si tous ses pôles sont strictement à l’intérieur du cercle unité.',
   corps: R`
@@ -728,7 +739,7 @@ ${retenir(R`<p>Un zéro <b>sur</b> le cercle unité en $e^{j2\pi f_0/f_e}$ annul
 `},
 
 {
-  id: 'rif-rii', theme: 'filtres', tps: ['p3'],
+  id: 'rif-rii', theme: 'filtres', tps: ['p4'],
   titre: 'RIF ou RII ?',
   resume: 'RIF : pas de rétroaction, h finie, toujours stable. RII : rétroaction, h infinie, stabilité à vérifier.',
   corps: R`
@@ -748,7 +759,7 @@ ${J`
 `},
 
 {
-  id: 'filtre-moyenneur', theme: 'filtres', tps: ['p3'],
+  id: 'filtre-moyenneur', theme: 'filtres', tps: ['p4'],
   titre: 'Exemple RIF : le moyenneur y = ½x(n) + ½x(n−1)',
   resume: 'Moyenne de deux échantillons : un passe-bas de coupure fe/4, à phase linéaire.',
   corps: R`
@@ -769,7 +780,7 @@ ${methode(R`<p><b>Astuce de l'angle moitié</b> : $1 + e^{-j\theta} = e^{-j\thet
 `},
 
 {
-  id: 'filtre-difference', theme: 'filtres', tps: ['p3'],
+  id: 'filtre-difference', theme: 'filtres', tps: ['p4'],
   titre: 'Exemple RIF : la différence y = ½x(n) − ½x(n−1)',
   resume: 'Mesure la variation entre deux échantillons : un passe-haut de coupure fe/4.',
   corps: R`
@@ -790,7 +801,7 @@ ${retenir(R`<p>Zéro en $z = 1$ → tue le continu ($f=0$) → passe-haut. Zéro
 `},
 
 {
-  id: 'filtre-rii', theme: 'filtres', tps: ['p3'],
+  id: 'filtre-rii', theme: 'filtres', tps: ['p4'],
   titre: 'Exemple RII : y(n) = a·y(n−1) + x(n)',
   resume: 'Un seul pôle en a. Stable si |a| < 1. h(n) = aⁿu(n). Passe-bas si a > 0, passe-haut si a < 0.',
   corps: R`
@@ -812,7 +823,231 @@ ${methode(R`<p><b>Fréquence de coupure</b> ($0 \lt a \lt 1$) : chercher $|H(f_c
 $$1 - 2a\cos\theta_c + a^2 = 2(1-a)^2 \iff \cos\theta_c = \frac{4a - 1 - a^2}{2a}, \qquad f_c = \frac{f_e\,\theta_c}{2\pi}$$
 <p>Ex. $a = 0{,}5$ : $\cos\theta_c = 0{,}75$ → $\theta_c \approx 0{,}72$ rad → $f_c \approx 0{,}115\,f_e$.</p>`)}
 ${retenir(R`<p>Plus $a$ est proche de 1, plus le pôle est proche du cercle unité : gain énorme en basse fréquence, coupure très basse, et réponse très lente.</p>`)}
+`},
+
+/* ============================================================ PARTIE 4 : cours « filtres numériques » */
+{
+  id: 'filtre-representations', theme: 'filtres', tps: ['p4'],
+  titre: 'Un filtre, cinq représentations',
+  resume: 'Équation, h(n), H(z), pôles/zéros, H(f) : la même information. H(z) est le pivot qui relie tout.',
+  corps: R`
+${idee(R`<p>Un filtre numérique transforme $x(n)$ en $y(n)$ avec des coefficients $\{b_k, a_k\}$. Il est <b>linéaire</b> (superposition), <b>invariant</b> (coefficients constants), <b>causal</b> ($y(n)$ ne dépend que de $x(k)$, $k \le n$) et <b>au repos</b> (mémoires nulles au départ).</p>`)}
+${table(['De…', 'vers…', 'Méthode'], [
+  ['équation', '$H(z)$', 'TZ terme à terme : $x(n-k) \\to z^{-k}X(z)$, puis $H = Y/X$'],
+  ['$H(z)$', 'équation', 'produit en croix, puis $z^{-k}Y(z) \\to y(n-k)$ ; isoler $y(n)$'],
+  ['équation', '$h(n)$', 'entrée $\\delta(n)$, filtre au repos, récurrence'],
+  ['$H(z)$', '$h(n)$', 'table : $\\frac{1}{1-az^{-1}} \\to a^nu(n)$ ; $z^{-k}$ = retard de $k$'],
+  ['$H(z)$', 'pôles, zéros', 'écrire en puissances <b>positives</b> de $z$, chercher les racines'],
+  ['pôles, zéros', '$H(z)$', '$K\\prod(z-z_i)/\\prod(z-p_i)$, $K$ fixé par une condition de gain'],
+  ['pôles', 'stabilité', 'stable ⟺ tous les $|p_i| \\lt 1$ (RIF : toujours)'],
+  ['$h(n)$', 'indicielle', '$s(n) = \\sum_{k=0}^nh(k)$ ; valeur finale $H(z)|_{z=1}$'],
+  ['$H(z)$', '$H(f)$', '$z = e^{j2\\pi f/f_e}$, factoriser par l’angle moitié'],
+  ['$H(f)$', 'type, $f_c$', 'comparer $z = 1$ ($f=0$) et $z = -1$ ($f_e/2$) ; $|H(f_c)| = \\max|H|/\\sqrt2$']
+])}
+${retenir(R`<p>Équation aux différences : $y(n) = \sum_{k=0}^Mb_kx(n-k) - \sum_{k=1}^Na_ky(n-k)$. <b>Partie directe</b> = les $b_k$ ; <b>partie récursive</b> = les $a_k$, avec le signe <b>−</b> (convention Matlab, $a_0 = 1$). <b>Ordre</b> = plus grand retard. Tous les $a_k$ nuls → non récursif → RIF.</p>`)}
+`},
+
+{
+  id: 'filtre-exemple', theme: 'filtres', tps: ['p4'],
+  titre: 'Le filtre exemple du cours, de A à Z',
+  resume: 'y(n) = 0,5 y(n−1) + 0,25 x(n) + 0,25 x(n−1) : RII d’ordre 1, stable, passe-bas, fc ≈ 0,102 fe.',
+  corps: R`
+$$y(n) = 0{,}5\,y(n-1) + 0{,}25\,x(n) + 0{,}25\,x(n-1) \qquad b = [0{,}25\ \ 0{,}25],\ \ a = [1\ \ {-0{,}5}]$$
+${piege(R`<p>Le signe : l'équation contient $+0{,}5\,y(n-1)$, donc $a_1 = -0{,}5$ (on passe tout à gauche : $y(n) - 0{,}5\,y(n-1) = \ldots$).</p>`)}
+${table(['Représentation', 'Résultat'], [
+  ['$h(n)$ (récurrence)', '$0{,}25 ;\\ 0{,}375 ;\\ 0{,}1875 ;\\ 0{,}094\\ldots$ soit $h(0) = 0{,}25$, $h(n) = 0{,}75\\,(0{,}5)^n$ pour $n \\ge 1$ → <b>RII</b>'],
+  ['indicielle', '$s(n) = 1 - 0{,}75\\,(0{,}5)^n$ : $0{,}25 ;\\ 0{,}625 ;\\ 0{,}8125\\ldots \\to 1$'],
+  ['$H(z)$', '$\\dfrac{0{,}25\\,(1+z^{-1})}{1-0{,}5\\,z^{-1}} = 0{,}25\\,\\dfrac{z+1}{z-0{,}5}$'],
+  ['pôles / zéros', 'zéro en $-1$, pôle en $0{,}5$ → <b>stable</b>'],
+  ['$h(n)$ par la table', '$0{,}25\\,(0{,}5)^nu(n) + 0{,}25\\,(0{,}5)^{n-1}u(n-1)$'],
+  ['$H(f)$', '$H(0) = \\frac{0{,}5}{0{,}5} = 1$, $H(f_e/2) = \\frac{0}{1{,}5} = 0$ → <b>passe-bas</b>'],
+  ['module', '$|H(f)| = \\dfrac{0{,}5\\cos(\\pi f/f_e)}{\\sqrt{1{,}25 - \\cos(2\\pi f/f_e)}}$'],
+  ['phase', '$\\varphi(f) = -\\frac{\\pi f}{f_e} - \\arctan\\dfrac{0{,}5\\sin\\omega}{1 - 0{,}5\\cos\\omega}$'],
+  ['coupure', '$|H|^2 = \\frac{1+\\cos\\omega_c}{8(1{,}25-\\cos\\omega_c)} = \\frac12$ ⟹ $\\cos\\omega_c = 0{,}8$ ⟹ $f_c \\approx 0{,}102\\,f_e$']
+])}
+${plots(
+  plot({ x: [-0.5, 10.5], y: [-0.05, 0.45], xl: 'n', yl: 'h(n)', stems: [{ n: [0,1,2,3,4,5,6,7,8,9,10], v: [0.25].concat([1,2,3,4,5,6,7,8,9,10].map(n => 0.75 * Math.pow(0.5, n))) }] }),
+  plot({ x: [-0.55, 0.55], y: [-0.08, 1.2], xl: 'f/fe', yl: '|H(f)|', fns: [{ f: v => 0.5 * abs(cos(PI * v)) / Math.sqrt(1.25 - cos(2 * PI * v)) }], hlines: [Math.SQRT1_2], vlines: [-0.102, 0.102], xt: [[-0.5, '-½'], [0.102, '0,102'], [0.5, '½']], yt: [[1, '1']] })
+)}
+`},
+
+{
+  id: 'gain-db-phase', theme: 'filtres', tps: ['p4'],
+  titre: 'Module, phase et gain en décibels',
+  resume: 'Une sinusoïde ressort multipliée par |H(f₀)| et décalée de φ(f₀). En dB : 20 log₁₀|H|.',
+  corps: R`
+$$x(n) = A\cos\!\Big(2\pi\frac{f_0}{f_e}n + \theta\Big) \ \Longrightarrow\ y(n) = A\,|H(f_0)|\cos\!\Big(2\pi\frac{f_0}{f_e}n + \theta + \varphi(f_0)\Big)$$
+<p>(en régime permanent, filtre stable). $|H(f_0)|$ multiplie l'amplitude ; $\varphi(f_0)$ décale la sinusoïde ($\varphi \lt 0$ : retard). Coefficients réels → $|H|$ <b>pair</b>, $\varphi$ <b>impaire</b> : on calcule sur $[0, f_e/2]$ et on complète par symétrie.</p>
+$$G_{dB}(f) = 20\log_{10}|H(f)|$$
+${table(['$|H|$', '1', '$1/\\sqrt2$', '1/2', '0,1', '0,01'], [['$G_{dB}$', '0 dB', '−3 dB', '−6 dB', '−20 dB', '−40 dB']])}
+${methode(R`<p><b>Calcul</b> : factoriser par l'angle moitié ($\omega = 2\pi f/f_e$) : $1 + e^{-j\omega} = 2\cos(\omega/2)\,e^{-j\omega/2}$ ; $1 - e^{-j\omega} = 2j\sin(\omega/2)\,e^{-j\omega/2}$. Puis $|H| = \frac{|\text{num.}|}{|\text{dén.}|}$ et $\varphi = \arg(\text{num.}) - \arg(\text{dén.})$.<br>
+Amplitude réelle <b>négative</b> → ajouter $\pm\pi$. Facteur $j$ → ajouter $\pi/2$.</p>`)}
+`},
+
+{
+  id: 'type-coupure', theme: 'filtres', tps: ['p4'],
+  titre: 'Type de filtre et fréquence de coupure',
+  resume: 'Évaluer H en z = 1 (f = 0) et z = −1 (fe/2) donne le type ; fc est là où |H| = max/√2.',
+  corps: R`
+$$H\big|_{z=1} = \frac{\sum_k b_k}{1 + \sum_k a_k} \qquad H\big|_{z=-1} = \frac{\sum_k (-1)^kb_k}{1 + \sum_k(-1)^ka_k}$$
+${table(['Type', '$|H|$ en 0', '$|H|$ en $f_e/2$'], [
+  ['passe-bas', 'grand', 'faible'], ['passe-haut', 'faible', 'grand'],
+  ['passe-bande', 'faible', 'faible (maximum entre les deux)'], ['coupe-bande', 'grand', 'grand (creux entre les deux)']
+])}
+<p><b>Fréquence de coupure à −3 dB</b> : $|H(f_c)| = \dfrac{\max_f|H(f)|}{\sqrt2}$.</p>
+${methode(R`<p>Filtre exemple : $H|_{z=1} = \frac{0{,}5}{0{,}5} = 1$, $H|_{z=-1} = 0$ → passe-bas ; $f_c \approx 0{,}102\,f_e$.<br>Moyenneur et différence du TD 4 : $f_c = f_e/4$.</p>`)}
+${piege(R`<p>Ne pas confondre $f_c$ (−3 dB) et le bord $f_p$ de la bande passante d'un <b>gabarit</b> (tolérance $\delta_p$ donnée).</p>`)}
+`},
+
+{
+  id: 'lecture-geometrique', theme: 'filtres', tps: ['p4'],
+  titre: 'Lire |H(f)| sur le diagramme pôles-zéros',
+  resume: '|H| = |K| × (produit des distances aux zéros) / (produit des distances aux pôles), le point parcourant le cercle unité.',
+  corps: R`
+$$|H(f)| = |K|\,\frac{\prod_i|e^{j\omega} - z_i|}{\prod_i|e^{j\omega} - p_i|}, \qquad \omega = 2\pi f/f_e$$
+${idee(R`<p>Quand $f$ va de $0$ à $f_e/2$, le point $e^{j\omega}$ parcourt le <b>demi-cercle supérieur</b> de $z = 1$ à $z = -1$ :</p>
+<ul><li>près d'un <b>zéro</b> : $|H|$ diminue ; zéro <b>sur</b> le cercle ⇒ $|H| = 0$ ;</li>
+<li>près d'un <b>pôle</b> : $|H|$ augmente, d'autant plus que le pôle est proche du cercle ;</li>
+<li>racine en $z = 0$ : distance toujours 1, <b>aucun effet</b> sur $|H|$ (juste un retard).</li></ul>`)}
+${plots(
+  plot({ x: [-1.6, 1.6], y: [-1.4, 1.4], w: 250, h: 230, equal: true, xl: 'Re', yl: 'Im', fns: [{ fx: t => cos(t), fy: t => sin(t), t: [0, 2 * PI], cls: 'muted' }], pts: [{ x: -1, y: 0, k: 'zero', l: '−1' }, { x: 0.5, y: 0, k: 'pole', l: '0,5' }], cap: 'Filtre exemple : zéro en −1, pôle en 0,5' }),
+  plot({ x: [0, 0.5], y: [-0.05, 1.2], w: 250, h: 230, xl: 'f/fe', yl: '|H|', fns: [{ f: v => 0.5 * abs(cos(PI * v)) / Math.sqrt(1.25 - cos(2 * PI * v)) }], xt: [[0.25, '¼'], [0.5, '½']], cap: 'Max en f = 0 (près du pôle), nul en fe/2 (sur le zéro)' })
+)}
+`},
+
+{
+  id: 'schema-blocs', theme: 'filtres', tps: ['p4'],
+  titre: 'Réaliser un filtre : le schéma-blocs',
+  resume: 'Un bloc z⁻¹ par retard (mémoire d’un échantillon), un multiplieur par coefficient, des additionneurs.',
+  corps: R`
+${idee(R`<p>Un filtre se construit avec trois briques : des <b>retards</b> $z^{-1}$ (chacun mémorise un échantillon pendant $T_e$), des <b>multiplieurs</b> (un par coefficient) et des <b>additionneurs</b>.</p>`)}
+${uml({ alt: 'Schéma-blocs du filtre exemple', classes: [
+  { id: 'x', name: 'x(n)', compact: true, x: 0, y: 0 }, { id: 'g0', name: '× 0,25', compact: true, x: 120, y: 0 },
+  { id: 's', name: '+', compact: true, x: 260, y: 0, w: 50 }, { id: 'y', name: 'y(n)', compact: true, x: 380, y: 0 },
+  { id: 'd1', name: 'z⁻¹', compact: true, x: 0, y: 90 }, { id: 'g1', name: '× 0,25', compact: true, x: 120, y: 90 },
+  { id: 'd2', name: 'z⁻¹', compact: true, x: 380, y: 90 }, { id: 'g2', name: '× 0,5', compact: true, x: 250, y: 160 }
+], rels: [
+  { type: 'assoc', from: 'x', to: 'g0' }, { type: 'assoc', from: 'g0', to: 's' }, { type: 'assoc', from: 's', to: 'y' },
+  { type: 'assoc', from: 'x', to: 'd1' }, { type: 'assoc', from: 'd1', to: 'g1' }, { type: 'assoc', from: 'g1', to: 's', fs: 'right', ts: 'bottom', fo: 0, too: -10 },
+  { type: 'assoc', from: 'y', to: 'd2' }, { type: 'assoc', from: 'd2', to: 'g2', fs: 'bottom', ts: 'right' }, { type: 'assoc', from: 'g2', to: 's', fs: 'top', ts: 'bottom', too: 10, fo: 0 }
+], caption: 'y(n) = 0,25 x(n) + 0,25 x(n−1) + 0,5 y(n−1) : partie directe (gauche), partie récursive (droite)' })}
+${retenir(R`<p>Un <b>RIF</b> n'a que la partie directe ; un <b>RII</b> réinjecte aussi la sortie retardée. Le nombre de blocs $z^{-1}$ = le nombre de retards de l'équation.</p>`)}
+`},
+
+{
+  id: 'gabarit', theme: 'filtres', tps: ['p4'],
+  titre: 'Le gabarit : exprimer le besoin',
+  resume: 'Bande passante [0, fp] avec tolérance δp, bande coupée [fs, fe/2] avec |H| ≤ δs, transition entre les deux.',
+  corps: R`
+${plot({ x: [0, 0.5], y: [-0.05, 1.25], w: 400, h: 170, xl: 'f/fe', yl: '|H|', bands: [{ a: 0, b: 0.1 }, { a: 0.2, b: 0.5, cls: 'ko' }], hlines: [0.891, 1.05, 0.06], fns: [{ f: v => 1 / Math.sqrt(1 + Math.pow(v / 0.135, 24)) }], xt: [[0.1, 'fp'], [0.2, 'fs'], [0.5, 'fe/2']], yt: [[0.891, '1−δp'], [0.06, 'δs']], cap: 'Allure d’un filtre qui respecte le gabarit : |H| reste au-dessus de 1−δp jusqu’à fp et sous δs après fs' })}
+${table(['Zone', 'Contrainte'], [
+  ['bande passante $[0, f_p]$', '$1 - \\delta_p \\le |H(f)| \\le 1 + \\delta_p$'],
+  ['bande coupée $[f_s, f_e/2]$', '$|H(f)| \\le \\delta_s$'],
+  ['transition', 'largeur $f_s - f_p$, libre'],
+  ['atténuation minimale', '$A_s = -20\\log_{10}\\delta_s$ (dB)']
+])}
+${methode(R`<p><b>Exemple du cours</b> ($f_e = 1000$ Hz) : garder 0–100 Hz avec une perte ≤ 1 dB ($|H| \ge 0{,}891$), rejeter au-delà de 200 Hz d'au moins 40 dB ($|H| \le 0{,}01$).</p>`)}
+`},
+
+{
+  id: 'synthese-rif', theme: 'filtres', tps: ['p4'],
+  titre: 'Synthèse RIF par la méthode de la fenêtre',
+  resume: 'Tronquer le passe-bas idéal (un sinc), le décaler de M/2, le pondérer par une fenêtre de Hamming. fir1 le fait.',
+  corps: R`
+<ol><li>Passe-bas idéal ($\nu_c = f_c/f_e$) : $h_d(n) = 2\nu_c\,\mathrm{sinc}(2\nu_cn)$ — infini et non causal.</li>
+<li>Garder $M+1$ valeurs et décaler de $M/2$ (causal).</li>
+<li>Pondérer par une <b>fenêtre</b> ; Hamming : $w(n) = 0{,}54 - 0{,}46\cos(2\pi n/M)$.</li>
+<li>Normaliser : $\sum_nh(n) = 1$. $h$ symétrique → <b>phase linéaire</b>, retard $M/2$.</li></ol>
+${plot({ x: [-0.5, 32.5], y: [-0.08, 0.34], w: 400, h: 140, xl: 'n', yl: 'h(n)', stems: [{ n: Array.from({ length: 33 }, (_, n) => n), v: Array.from({ length: 33 }, (_, n) => 0.3 * sinc(0.3 * (n - 16)) * (0.54 - 0.46 * cos(2 * PI * n / 32))) }], xt: [[16, '16 = M/2']], cap: 'M = 32, fc = 150 Hz, fe = 1000 Hz : sinc tronqué × Hamming, symétrique autour de 16' })}
+${methode(R`<p>Gabarit 100 / 200 Hz : ${c`b = fir1(32, 150/(fe/2))`} (Hamming par défaut) → rejet &gt; 46 dB, retard $M/2 = 16$ échantillons = 16 ms. Fenêtre rectangulaire (simple troncature) : rejet ≈ 28 dB seulement.</p>`)}
+${retenir(R`<p>Augmenter $M$ rétrécit la transition mais allonge le retard. Hamming : meilleure atténuation que la fenêtre rectangulaire, au prix d'une transition un peu plus large.</p>`)}
+`},
+
+{
+  id: 'synthese-rii', theme: 'filtres', tps: ['p4'],
+  titre: 'Synthèse RII : du filtre analogique au numérique',
+  resume: 'On part d’un prototype analogique (Butterworth…) et on le convertit par la transformation bilinéaire.',
+  corps: R`
+<p>Gabarit numérique → prototype analogique $H_a(s)$ → <b>transformation bilinéaire</b> → filtre RII $H(z)$.</p>
+$$s = 2f_e\,\frac{1 - z^{-1}}{1 + z^{-1}}$$
+<ul><li><b>Conserve la stabilité</b> : $\Re(s) \lt 0$ devient $|z| \lt 1$.</li>
+<li><b>Déforme l'axe des fréquences</b> : $\Omega = 2f_e\tan(\pi f/f_e)$ ; les bords du gabarit sont précompensés (Matlab le fait).</li></ul>
+${table(['Famille', 'Allure de |H|'], [
+  ['Butterworth', 'monotone, sans ondulation'],
+  ['Chebyshev', 'ondulations dans une bande, transition plus raide'],
+  ['elliptique', 'ondulations dans les deux bandes, ordre minimal']
+])}
+${methode(R`<p>En TP : ${c`[b, a] = butter(N, fc/(fe/2));`} puis vérifier $|H(f)|$, la phase et les pôles (${c`freqz`}, ${c`zplane`}).</p>`)}
+${table(['', 'RIF', 'RII'], [
+  ['synthèse', 'fenêtrage (fir1)', 'prototype analogique (butter)'],
+  ['sélectivité', 'ordre élevé nécessaire', 'peu de coefficients suffisent'],
+  ['phase', 'linéaire si $h$ symétrique', 'non linéaire'],
+  ['stabilité', 'garantie', 'à vérifier']
+])}
+`},
+
+{
+  id: 'rejecteur', theme: 'filtres', tps: ['p4'],
+  titre: 'Filtre réjecteur : supprimer le 50 Hz',
+  resume: 'Deux zéros sur le cercle à f₀ et deux pôles juste derrière (rayon r < 1) : une encoche très étroite.',
+  corps: R`
+$$H(z) = K\,\frac{1 - 2\cos\omega_0\,z^{-1} + z^{-2}}{1 - 2r\cos\omega_0\,z^{-1} + r^2z^{-2}}, \qquad \omega_0 = 2\pi f_0/f_e$$
+<ul><li>zéros $e^{\pm j\omega_0}$ : $|H(f_0)| = 0$ ;</li><li>pôles $r\,e^{\pm j\omega_0}$ juste derrière : $|H| \approx 1$ ailleurs ;</li><li>$r$ proche de 1 : encoche étroite, mais transitoire long.</li></ul>
+${plot({ x: [0, 500], y: [-0.05, 1.15], w: 400, h: 150, xl: 'f (Hz)', yl: '|H(f)|', fns: [{ n: 2000, f: gainBA(NOTCH_B, NOTCH_A, 1000) }], xt: [[50, '50'], [100, '100'], [250, '250'], [500, '500']], cap: 'fe = 1000 Hz, f₀ = 50 Hz, r = 0,95 : seul le 50 Hz est supprimé' })}
+${MAT`
+  w0 = 2*pi*50/fe; r = 0.95;
+  b = [1, -2*cos(w0), 1];
+  a = [1, -2*r*cos(w0), r^2];
+  b = b*sum(a)/sum(b);          % gain 1 en f = 0
+  y = filter(b, a, x);
 `}
+`},
+
+{
+  id: 'matlab-filtres', theme: 'matlab', tps: ['p4'],
+  titre: 'Matlab : un filtre = deux vecteurs b et a',
+  resume: 'filter, impz, stepz, zplane, tf2zpk, isstable, freqz, fir1, butter… et les deux conventions à ne pas rater.',
+  corps: R`
+${table(['Représentation', 'Commande', 'Remarque'], [
+  ['équation aux différences', c`y = filter(b, a, x)`, 'filtre au repos au départ'],
+  ['réponse impulsionnelle', c`[h, n] = impz(b, a, N)`, 'h(1) contient h(0)'],
+  ['réponse indicielle', c`[s, n] = stepz(b, a, N)`, 'valeur finale = sum(b)/sum(a)'],
+  ['pôles, zéros, gain', c`[z, p, k] = tf2zpk(b, a)` + ' puis ' + c`zplane(z, p)`, c`roots(a)` + ' = pôles'],
+  ['stabilité', c`isstable(b, a)`, '1 si tous les abs(p) < 1'],
+  ['réponse fréquentielle', c`[H, f] = freqz(b, a, 1024, fe)`, 'abs, angle, 20*log10(abs(H))'],
+  ['synthèse RIF / RII', c`fir1(M, fc/(fe/2))` + ' · ' + c`butter(N, fc/(fe/2))`, 'Hamming · Butterworth']
+])}
+${piege(R`<p><b>Convention 1</b> : $b = [b_0\ b_1 \ldots b_M]$ et $a = [1\ a_1 \ldots a_N]$ <b>avec le signe −</b> de l'équation. Filtre exemple : ${c`b = [0.25 0.25]; a = [1 -0.5];`}<br>
+<b>Convention 2</b> : ${c`fir1`}, ${c`butter`} et ${c`freqz(b,a)`} sans fe utilisent $W = f/(f_e/2)$ : <b>$W = 1$ correspond à $f_e/2$</b>.</p>`)}
+${MAT`
+  fe = 1000;
+  b = fir1(32, 150/(fe/2)); a = 1;         % RIF passe-bas (Hamming)
+  % [b, a] = butter(4, 100/(fe/2));        % variante RII
+  [H, f] = freqz(b, a, 2048, fe);
+  plot(f, 20*log10(abs(H))); grid on       % comparer au gabarit (dB)
+  figure; zplane(b, a);                    % pôles et zéros
+  figure; impz(b, a);                      % réponse impulsionnelle
+  y = filter(b, a, x);                     % filtrer le signal
+`}
+<p>Tracer $|H(f)|$ sur une grille <b>fine</b> : une grille grossière peut masquer une ondulation ou une encoche. Pour un RIF, ${c`conv(x, b)`} donne le même résultat que ${c`filter`} (mais un vecteur plus long de $L - 1$) ; pour un RII, $h$ est infinie : on utilise ${c`filter`}.</p>
+`},
+
+{
+  id: 'pieges-filtres', theme: 'filtres', tps: ['p4'],
+  titre: 'Pièges fréquents sur les filtres',
+  resume: 'Fréquences (f, f/fe, W), signe des aₖ, ordre vs longueur, pôles en 0, sauts de phase, fc vs fp, transitoire.',
+  corps: R`
+${table(['Sujet', 'Erreur', 'Vérification utile'], [
+  ['fréquences', 'confondre $f$ (Hz), $f/f_e$ et $W = f/(f_e/2)$', 'écrire $\\omega = 2\\pi f/f_e$ ; Matlab : $W = 1$ pour $f_e/2$'],
+  ['coefficients', 'oublier le signe des $a_k$', 'isoler $y(n)$ ; $a = [1\\ a_1 \\ldots a_N]$'],
+  ['ordre', 'confondre ordre $M$ et longueur $M+1$', 'compter les retards'],
+  ['pôles en 0', 'les oublier dans le diagramme', 'écrire $H(z)$ en puissances positives de $z$'],
+  ['stabilité', 'regarder les zéros', 'seuls les pôles comptent : $|p_i| \\lt 1$'],
+  ['phase', 'oublier les sauts de $\\pm\\pi$', 'suivre le signe de l’amplitude réelle'],
+  ['coupure', 'confondre $f_c$ (−3 dB) et le bord $f_p$ du gabarit', 'préciser la tolérance'],
+  ['démarrage', 'ignorer le transitoire initial', 'filter part d’un état nul']
+])}
+`},
   ];
 
   /* ============================================================ QCM
@@ -1064,44 +1299,44 @@ ${retenir(R`<p>Plus $a$ est proche de 1, plus le pôle est proche du cercle unit
   choix: ['5 120', '1 048 576', '1 024', '10 240'],
   expl: R`$\frac N2\log_2 N = 512 \times 10 = 5120$, contre $N^2 \approx 10^6$ pour la TFD directe.` },
 
-{ theme: 'filtres', type: 'pratique', tps: ['p3'],
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
   q: R`Quelle est la fonction de transfert de $y(n) = \frac12x(n) + \frac12x(n-1)$ ?`,
   choix: [R`$H(z) = \frac12(1 + z^{-1})$`, R`$H(z) = \frac12(1 - z^{-1})$`, R`$H(z) = \dfrac{1}{1 - \frac12 z^{-1}}$`, R`$H(z) = \frac12 + z$`],
   expl: R`Un retard d'un échantillon devient $z^{-1}$ : $Y = \frac12X + \frac12z^{-1}X$.` },
 
-{ theme: 'filtres', type: 'pratique', tps: ['p3'],
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
   q: R`Quelle est la réponse impulsionnelle de $y(n) = a\,y(n-1) + x(n)$ ?`,
   choix: [R`$a^n u(n)$`, R`$\delta(n) + a\,\delta(n-1)$`, R`$a\,\delta(n-1)$`, R`$(1-a)^n u(n)$`],
   expl: R`Avec $x = \delta$ : $h(0) = 1$, $h(1) = a$, $h(2) = a^2$… Elle ne s'arrête jamais : filtre RII.` },
 
-{ theme: 'filtres', type: 'pratique', tps: ['p3'],
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
   q: R`Le filtre $y(n) = 1{,}2\,y(n-1) + x(n)$ est-il stable ?`,
   choix: [R`Non : pôle en $1{,}2$, hors du cercle unité`, 'Oui, comme tous les filtres numériques', 'Oui, car le coefficient de x(n) vaut 1', 'On ne peut pas savoir sans simuler'],
   expl: R`$H(z) = \frac{z}{z-1{,}2}$ ; $h(n) = 1{,}2^n u(n)$ explose.` },
 
-{ theme: 'filtres', type: 'pratique', tps: ['p3'],
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
   q: 'Ce filtre est-il stable ?',
   uml: plot({ x: [-1.6, 1.6], y: [-1.4, 1.4], w: 240, h: 220, xl: 'Re', yl: 'Im', equal: true, fns: [{ fx: t => cos(t), fy: t => sin(t), t: [0, 2 * PI], cls: 'muted' }], pts: [{ x: 0.5, y: 0.6, k: 'pole' }, { x: 0.5, y: -0.6, k: 'pole' }, { x: -1, y: 0, k: 'zero' }], cap: '× pôles, ○ zéro, cercle unité en gris' }),
   choix: ['Oui : les deux pôles sont à l’intérieur du cercle unité', 'Non : il y a un zéro sur le cercle unité', 'Non : les pôles sont complexes', 'On ne peut rien dire sans l’équation'],
   expl: R`$|0{,}5 \pm 0{,}6j| = \sqrt{0{,}61} \approx 0{,}78 \lt 1$. La position des <b>zéros</b> n'a aucun rôle dans la stabilité.` },
 
-{ theme: 'filtres', type: 'pratique', tps: ['p3'],
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
   q: 'Deux pôles en z = 0 et deux zéros en z = ±1. Quelle équation aux différences ?',
   choix: [R`$y(n) = x(n) - x(n-2)$`, R`$y(n) = x(n) + x(n-2)$`, R`$y(n) = y(n-2) + x(n)$`, R`$y(n) = x(n) - x(n-1)$`],
   expl: R`$H(z) = \frac{(z-1)(z+1)}{z^2} = 1 - z^{-2}$. C'est un RIF (TD 4, ex. 1).` },
 
-{ theme: 'filtres', type: 'pratique', tps: ['p3'],
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
   q: 'Quel type de filtre a ce gain ?',
   uml: plot({ x: [-0.6, 0.6], y: [-0.1, 1.25], xl: 'f/fe', yl: '|H(f)|', fns: [{ f: v => abs(cos(PI * v)) }], xt: [[-0.5, '-1/2'], [0.5, '1/2']], yt: [[1, '1']] }),
   choix: [R`Passe-bas, coupure à $f_e/4$`, 'Passe-haut', 'Passe-bande', R`Passe-bas, coupure à $f_e/2$`],
   expl: R`$|H| = \cos(\pi f/f_e)$ : 1 en 0, 0 en $f_e/2$. À −3 dB, $\cos(\pi f_c/f_e) = \frac{1}{\sqrt2}$ → $f_c = f_e/4$ (moyenneur à 2 points).` },
 
-{ theme: 'filtres', type: 'pratique', tps: ['p3'],
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
   q: R`Quelle est la réponse indicielle de $y(n) = \frac12x(n) - \frac12x(n-1)$ ?`,
   choix: [R`$\frac12$ en $n = 0$, puis $0$`, R`$\frac12$ en $n=0$, puis $1$`, R`$1$ pour tout $n \ge 0$`, R`$\frac12$ pour tout $n\ge0$`],
   expl: R`Avec $x = u$ : $s(0) = \frac12$, puis $\frac12 - \frac12 = 0$. Un passe-haut « oublie » une entrée constante.` },
 
-{ theme: 'filtres', type: 'pratique', tps: ['p3'],
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
   q: R`Pour $y(n) = 0{,}5\,y(n-1) + x(n)$, vers quoi tend la réponse indicielle ?`,
   choix: ['2', '0,5', '1', 'Elle diverge'],
   expl: R`$s(n) \to \frac{1}{1-a} = \frac{1}{0{,}5} = 2$ : c'est aussi le gain en $f = 0$, $H(1) = 2$.` },
@@ -1132,32 +1367,32 @@ ${retenir(R`<p>Plus $a$ est proche de 1, plus le pôle est proche du cercle unit
   choix: ['Puissance : énergie infinie mais puissance moyenne finie', 'Énergie : énergie finie, puissance nulle', 'Ni l’un ni l’autre', 'Les deux à la fois'],
   expl: 'Un signal périodique non nul ne s’éteint jamais : la somme des carrés diverge, mais la moyenne par échantillon reste finie.' },
 
-{ theme: 'filtres', type: 'theorie', tps: ['p3'],
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
   q: 'Pourquoi un filtre RIF est-il toujours stable ?',
   choix: ['Sa réponse impulsionnelle est finie, donc Σ|h(n)| est fini (pôles tous en 0)', 'Parce que ses coefficients sont inférieurs à 1', 'Parce qu’il a une phase linéaire', 'Ce n’est pas vrai'],
   expl: 'Une somme finie de valeurs finies est finie. En Z, le dénominateur est une puissance de z : tous les pôles sont en 0, à l’intérieur du cercle unité.' },
 
-{ theme: 'filtres', type: 'theorie', tps: ['p3'],
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
   q: 'Comment reconnaître un RII sur son équation aux différences ?',
   choix: ['Il y a des sorties passées y(n − k) à droite du signe égal', 'Il y a plus de 3 coefficients', 'Les coefficients sont négatifs', 'L’entrée x(n) n’apparaît pas'],
   expl: 'La rétroaction (récursivité) rend la réponse impulsionnelle infinie.' },
 
-{ theme: 'filtres', type: 'theorie', tps: ['p3'],
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
   q: 'Quel est le critère de stabilité d’un filtre causal ?',
   choix: ['Tous les pôles de H(z) sont strictement à l’intérieur du cercle unité', 'Tous les zéros sont dans le cercle unité', 'Le gain en f = 0 vaut 1', 'L’équation n’a pas de terme y(n − k)'],
   expl: R`Équivalent à $\sum|h(n)| \lt \infty$. Les zéros n'interviennent pas dans la stabilité.` },
 
-{ theme: 'filtres', type: 'theorie', tps: ['p3'],
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
   q: 'Comment obtient-on la réponse fréquentielle H(f) à partir de H(z) ?',
   choix: [R`On remplace $z$ par $e^{j2\pi f/f_e}$ (on parcourt le cercle unité)`, R`On remplace $z$ par $f$`, R`On remplace $z$ par $j2\pi f$`, 'On calcule la dérivée de H(z)'],
   expl: R`C'est la TFtd de $h(n)$. Parcourir le cercle de $f = 0$ ($z = 1$) à $f = f_e/2$ ($z = -1$).` },
 
-{ theme: 'filtres', type: 'theorie', tps: ['p3'],
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
   q: 'Quel est l’intérêt principal d’un RIF par rapport à un RII ?',
   choix: ['Il est toujours stable et peut avoir une phase linéaire', 'Il demande moins de coefficients', 'Il coupe plus raide à ordre égal', 'Il n’a pas besoin d’échantillonnage'],
   expl: 'En contrepartie, un RIF demande souvent beaucoup plus de coefficients qu’un RII pour une même raideur de coupure.' },
 
-{ theme: 'filtres', type: 'theorie', tps: ['p3'],
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
   q: R`Que devient un retard d'un échantillon, $x(n-1)$, dans le domaine Z ?`,
   choix: [R`$z^{-1}X(z)$`, R`$zX(z)$`, R`$X(z) - 1$`, R`$X(z-1)$`],
   expl: R`C'est la règle qui permet de passer directement de l'équation aux différences à $H(z)$.` },
@@ -1218,7 +1453,7 @@ ${retenir(R`<p>Plus $a$ est proche de 1, plus le pôle est proche du cercle unit
   choix: ['Elle n’est périodique que si f₀/fe est rationnel', 'Elle est toujours périodique', 'Elle n’a pas de fréquence', 'Elle ne peut pas être négative'],
   expl: R`Il faut un nombre entier d'échantillons par nombre entier de tours. $\cos(0{,}5n)$ n'est jamais périodique.` },
 
-{ theme: 'filtres', type: 'theorie', tps: ['p3'],
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
   q: 'Pourquoi la réponse impulsionnelle h(n) caractérise-t-elle entièrement un filtre (linéaire invariant) ?',
   choix: ['Toute entrée est une somme d’impulsions décalées, donc la sortie est y = x * h', 'Parce qu’elle donne la stabilité', 'Parce qu’elle est toujours finie', 'Parce qu’elle est égale à H(z)'],
   expl: R`$x(n) = \sum_k x(k)\delta(n-k)$ ; par linéarité et invariance, $y(n) = \sum_k x(k)h(n-k)$.` },
@@ -1238,20 +1473,106 @@ ${retenir(R`<p>Plus $a$ est proche de 1, plus le pôle est proche du cercle unit
   choix: ['La TFtd est une fonction continue de f sur une suite infinie ; la TFD ne demande que N valeurs finies', 'La TFD est plus précise', 'La TFtd n’existe pas pour les signaux réels', 'La TFD ne présente pas de repliement'],
   expl: 'Un ordinateur ne manipule que des vecteurs finis : on observe N points et on calcule N valeurs de spectre.' },
 
-{ theme: 'filtres', type: 'theorie', tps: ['p3'],
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
   q: 'Quel effet a un zéro placé sur le cercle unité en z = e^{j2πf₀/fe} ?',
   choix: ['Il annule complètement la fréquence f₀ en sortie', 'Il rend le filtre instable', 'Il amplifie fortement f₀', 'Aucun effet sur le gain'],
   expl: R`$|H(f_0)| = 0$. Ex. zéro en $z = 1$ → $f = 0$ supprimé (passe-haut) ; zéro en $z = -1$ → $f_e/2$ supprimé (passe-bas).` },
 
-{ theme: 'filtres', type: 'theorie', tps: ['p3'],
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
   q: 'Que se passe-t-il quand un pôle se rapproche du cercle unité (tout en restant dedans) ?',
   choix: ['Le gain devient très grand près de la fréquence correspondante, et la réponse devient lente', 'Le filtre devient RIF', 'Le gain s’annule à cette fréquence', 'Rien de visible'],
   expl: R`Pour $y(n) = a\,y(n-1)+x(n)$ avec $a \to 1$ : $H(0) = \frac{1}{1-a}$ explose et $a^n$ décroît très lentement.` },
 
-{ theme: 'filtres', type: 'theorie', tps: ['p3'],
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
   q: 'Qu’est-ce que la réponse indicielle d’un filtre ?',
   choix: ['La sortie quand l’entrée est l’échelon u(n) : la somme cumulée de h(n)', 'La sortie quand l’entrée est δ(n)', 'Le module de H(f)', 'La liste des pôles'],
-  expl: R`$s(n) = \sum_{k \le n} h(k)$. Sa limite est le gain en continu $H(1)$, si le filtre est stable.` }
+  expl: R`$s(n) = \sum_{k \le n} h(k)$. Sa limite est le gain en continu $H(1)$, si le filtre est stable.` },
+
+/* ---------- Partie 4 · cours filtres et TP 4 ---------- */
+{ theme: 'matlab', type: 'pratique', tps: ['p4'],
+  q: R`Quels vecteurs Matlab pour $y(n) = 0{,}5\,y(n-1) + 0{,}25\,x(n) + 0{,}25\,x(n-1)$ ?`,
+  choix: [c`b = [0.25 0.25]; a = [1 -0.5];`, c`b = [0.25 0.25]; a = [1 0.5];`, c`b = [1 -0.5]; a = [0.25 0.25];`, c`b = [0.25 0.25 0.5]; a = 1;`],
+  expl: R`On passe la partie récursive à gauche : $y(n) - 0{,}5\,y(n-1) = \ldots$, donc $a_1 = -0{,}5$ (convention $a = [1\ a_1 \ldots]$).` },
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
+  q: R`Un filtre a $|H(f_0)| = 0{,}1$. Quel est son gain à $f_0$ en dB ?`,
+  choix: ['−20 dB', '−10 dB', '−3 dB', '−40 dB'],
+  expl: R`$20\log_{10}(0{,}1) = -20$ dB. ($1/\sqrt2$ → −3 dB, 1/2 → −6 dB, 0,01 → −40 dB.)` },
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
+  q: R`$H(z) = 0{,}25\,\frac{z+1}{z-0{,}5}$. Que valent $|H|$ en $f = 0$ et en $f = f_e/2$ ?`,
+  choix: ['1 et 0 : passe-bas', '0 et 1 : passe-haut', '0,5 et 0,5 : passe-tout', '2 et 0 : passe-bas'],
+  expl: R`$z = 1$ : $0{,}25\cdot\frac{2}{0{,}5} = 1$ ; $z = -1$ : numérateur nul → 0.` },
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
+  q: R`TP 4, filtre $F_1$ : $y(n) + 0{,}2\,y(n-2) = x(n) + 2\,x(n-1)$. Que vaut $h(2)$ ?`,
+  choix: ['−0,2', '0', '2', '−0,4'],
+  expl: R`$y(n) = x(n) + 2x(n-1) - 0{,}2\,y(n-2)$ avec $x = \delta$ : $h(0) = 1$, $h(1) = 2$, $h(2) = -0{,}2\cdot h(0) = -0{,}2$, $h(3) = -0{,}2\cdot h(1) = -0{,}4$.` },
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
+  q: R`Même filtre $F_1$. Vers quelle valeur tend sa réponse indicielle ?`,
+  choix: ['2,5', '3', '1', '1,2'],
+  expl: R`Valeur finale = $H(1) = \frac{\sum b}{\sum a} = \frac{1+2}{1+0{,}2} = 2{,}5$ (${c`sum(b)/sum(a)`}).` },
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
+  q: R`Même filtre $F_1$ : où sont ses pôles, et est-il stable ?`,
+  choix: [R`$\pm j\sqrt{0{,}2} \approx \pm0{,}447j$ : stable`, R`$0$ et $-2$ : instable`, R`$\pm0{,}2$ : stable`, R`$-2$ : instable car hors du cercle`],
+  expl: R`$H(z) = \frac{z(z+2)}{z^2+0{,}2}$ : pôles racines de $z^2 = -0{,}2$, de module 0,447 &lt; 1 → stable. Les zéros ($0$ et $-2$) ne comptent pas pour la stabilité.` },
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
+  q: R`Moyenne glissante sur $L = 20$ points, $f_e = 10$ kHz. Quelles sinusoïdes sont complètement supprimées ?`,
+  choix: ['1000 Hz et 2500 Hz', '2500 Hz seulement', '1000 Hz seulement', 'aucune : un passe-bas atténue sans supprimer'],
+  expl: R`Zéros en $k\,f_e/L = k\cdot500$ Hz : 500, 1000, 1500, 2000, 2500… Avec $L = 4$ : zéros en 2500 et 5000 Hz seulement.` },
+{ theme: 'matlab', type: 'pratique', tps: ['p4'],
+  q: R`$f_e = 1000$ Hz, on veut un RIF de coupure 150 Hz. Quel argument donner à fir1 ?`,
+  choix: [c`fir1(32, 150/500)`, c`fir1(32, 150/1000)`, c`fir1(32, 150)`, c`fir1(32, 2*pi*150/1000)`],
+  expl: R`fir1 attend $W = f_c/(f_e/2) = 150/500 = 0{,}3$ ($W = 1$ ↔ $f_e/2$).` },
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
+  q: R`RIF symétrique d'ordre $M = 32$, $f_e = 1000$ Hz. Quel retard introduit-il ?`,
+  choix: ['16 ms', '32 ms', '1 ms', 'aucun : la phase est linéaire'],
+  expl: R`Phase linéaire = retard pur de $M/2 = 16$ échantillons, soit $16\,T_e = 16$ ms.` },
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
+  q: R`Gabarit : bande coupée avec $|H| \le 0{,}01$. Quelle atténuation minimale en dB ?`,
+  choix: ['40 dB', '20 dB', '1 dB', '100 dB'],
+  expl: R`$A_s = -20\log_{10}(0{,}01) = 40$ dB.` },
+{ theme: 'filtres', type: 'pratique', tps: ['p4'],
+  q: R`Réjecteur à $f_0 = 50$ Hz avec $f_e = 1000$ Hz : où place-t-on les zéros ?`,
+  choix: [R`Sur le cercle unité, en $e^{\pm j\pi/10}$`, R`En $z = \pm 0{,}95$`, R`En $z = 0$`, R`En $e^{\pm j\pi/2}$`],
+  expl: R`$\omega_0 = 2\pi\cdot50/1000 = \pi/10$ : zéros $e^{\pm j\omega_0}$ (gain nul à 50 Hz), pôles $0{,}95\,e^{\pm j\omega_0}$ juste derrière.` },
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
+  q: 'Quelle représentation d’un filtre sert de « pivot » pour passer aux autres ?',
+  choix: ['La fonction de transfert H(z)', 'La réponse indicielle', 'Le gabarit', 'Le schéma-blocs'],
+  expl: R`On arrive à $H(z)$ depuis l'équation ou $h(n)$, et on en déduit pôles, zéros et $H(f)$ (avec $z = e^{j2\pi f/f_e}$).` },
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
+  q: 'Pourquoi un RIF à coefficients symétriques ne déforme-t-il pas le signal ?',
+  choix: ['Sa phase est linéaire : toutes les fréquences sont retardées de M/2 échantillons', 'Son gain vaut 1 partout', 'Il n’a pas de pôles', 'Il est récursif'],
+  expl: 'Un même retard pour toutes les fréquences = la forme du signal est conservée.' },
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
+  q: 'Que garantit la transformation bilinéaire utilisée pour la synthèse RII ?',
+  choix: ['Un prototype analogique stable donne un filtre numérique stable', 'Une phase linéaire', 'Un filtre RIF', 'L’absence de toute déformation des fréquences'],
+  expl: R`$\Re(s) \lt 0$ devient $|z| \lt 1$. En revanche l'axe des fréquences est déformé ($\Omega = 2f_e\tan(\pi f/f_e)$), d'où la précompensation.` },
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
+  q: 'Butterworth, Chebyshev, elliptique : lequel a un gain monotone, sans ondulation ?',
+  choix: ['Butterworth', 'Chebyshev', 'Elliptique', 'Aucun'],
+  expl: 'Chebyshev ondule dans une bande (transition plus raide), l’elliptique dans les deux (ordre minimal).' },
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
+  q: 'Quel est l’effet d’une racine (pôle ou zéro) placée en z = 0 sur |H(f)| ?',
+  choix: ['Aucun : sa distance au cercle unité vaut toujours 1 (simple retard)', 'Elle annule le gain en f = 0', 'Elle rend le filtre instable', 'Elle double le gain'],
+  expl: 'C’est pour ça que les pôles en 0 d’un RIF ne font que retarder.' },
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
+  q: 'Fenêtre de Hamming ou rectangulaire pour un RIF ?',
+  choix: ['Hamming : bien meilleure atténuation (> 46 dB contre ≈ 28 dB), transition un peu plus large', 'Rectangulaire : toujours meilleure', 'Aucune différence', 'Hamming rend le filtre récursif'],
+  expl: 'La simple troncature (rectangulaire) laisse de fortes ondulations dans la bande coupée.' },
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
+  q: 'Dans un filtre réjecteur, pourquoi ne pas prendre r = 0,999 ?',
+  choix: ['Encoche très étroite mais transitoire très long (pôles presque sur le cercle)', 'Le filtre devient RIF', 'Les zéros quittent le cercle', 'Le gain en 0 devient infini'],
+  expl: 'Plus les pôles sont proches du cercle, plus h(n) décroît lentement.' },
+{ theme: 'matlab', type: 'theorie', tps: ['p4'],
+  q: 'Pourquoi utilise-t-on filter et non conv pour un filtre RII ?',
+  choix: ['h(n) est infinie : conv aurait besoin d’une réponse impulsionnelle finie', 'conv est plus lent', 'filter donne un résultat différent pour un RIF', 'conv ne marche pas en Matlab'],
+  expl: 'filter applique directement l’équation aux différences (b, a). Pour un RIF, conv(x, b) donne les mêmes valeurs (plus L − 1 en fin).' },
+{ theme: 'filtres', type: 'theorie', tps: ['p4'],
+  q: 'fc (−3 dB) et fp (bord du gabarit), c’est pareil ?',
+  choix: ['Non : fp est la fin de la bande passante avec une tolérance δp donnée, fc est où |H| = max/√2', 'Oui, toujours', 'fp est toujours plus grand que fc', 'fc n’existe que pour les RII'],
+  expl: 'Exemple du cours : fp = 100 Hz (perte ≤ 1 dB) mais fc = 150 Hz dans fir1.' },
+{ theme: 'matlab', type: 'theorie', tps: ['p4'],
+  q: 'Dans freqz(b, a) sans fe, que représente l’abscisse 1 ?',
+  choix: ['La fréquence fe/2 (fréquence normalisée W = f/(fe/2))', 'La fréquence fe', '1 Hz', 'La fréquence de coupure'],
+  expl: 'Même convention que fir1 et butter : W = 1 ↔ fe/2.' },
   ];
 
   const LEXIQUE = [
@@ -1296,6 +1617,19 @@ ${retenir(R`<p>Plus $a$ est proche de 1, plus le pôle est proche du cercle unit
     ['TFD', 'Transformée de Fourier discrète : N échantillons → N valeurs de spectre.'],
     ['TFtd', 'Transformée de Fourier à temps discret : spectre continu et périodique (période fe) d’une suite.'],
     ['Transformée en Z', R`$X(z) = \sum x(n)z^{-n}$. Un retard devient une multiplication par $z^{-1}$.`],
+    ['Bande passante / coupée', 'Plages de fréquences que le filtre doit laisser passer / rejeter (dans un gabarit).'],
+    ['Butterworth', 'Famille de filtres RII à gain monotone, sans ondulation.'],
+    ['Chebyshev / elliptique', 'Familles RII à ondulations (une bande / deux bandes), transition plus raide.'],
+    ['Fenêtre de Hamming', R`Pondération $0{,}54 - 0{,}46\cos(2\pi n/M)$ utilisée pour la synthèse RIF (fir1).`],
+    ['Gabarit', 'Zones où |H(f)| doit rester : bande passante, transition, bande coupée.'],
+    ['Gain en dB', R`$20\log_{10}|H(f)|$ : −3 dB ↔ $1/\sqrt2$, −20 dB ↔ 0,1.`],
+    ['Ordre d’un filtre', 'Plus grand retard de l’équation aux différences (longueur = ordre + 1 pour un RIF).'],
+    ['Partie directe / récursive', 'Termes en x (coefficients bₖ) / termes en y passés (coefficients aₖ).'],
+    ['Phase linéaire', 'Même retard pour toutes les fréquences : pas de déformation (RIF symétrique).'],
+    ['Réjecteur (notch)', 'Filtre qui supprime une seule fréquence (ex. 50 Hz) : zéros sur le cercle, pôles juste derrière.'],
+    ['Schéma-blocs', 'Réalisation d’un filtre avec des retards z⁻¹, des multiplieurs et des additionneurs.'],
+    ['Transformation bilinéaire', R`$s = 2f_e\frac{1-z^{-1}}{1+z^{-1}}$ : convertit un filtre analogique en RII numérique stable.`],
+    ['W (Matlab)', 'Fréquence normalisée par fe/2 : W = 1 correspond à fe/2.'],
     ['Zéro', 'Racine du numérateur de H(z). Un zéro sur le cercle unité annule une fréquence.']
   ];
 
@@ -1303,7 +1637,7 @@ ${retenir(R`<p>Plus $a$ est proche de 1, plus le pôle est proche du cercle unit
     id: 'tns',
     nom: 'Traitement numérique du signal',
     sousTitre: 'TNS · Signaux & filtres',
-    description: 'Signaux continus et Fourier, échantillonnage et repliement, signaux discrets, TFtd/TFD/FFT et filtres RIF/RII — d’après le cours de S. Miron, les TD 1 à 4 et le TP 3.',
+    description: 'Signaux continus et Fourier, échantillonnage et repliement, signaux discrets et TFtd/TFD/FFT, filtres numériques RIF/RII (analyse et synthèse) — d’après le cours de S. Miron (parties 1 à 4), les TD 1 à 4 et les TP 3 et 4.',
     couleur: '#0e8a9a',
     filtreLabel: 'Toutes les parties',
     ressources: [
@@ -1314,7 +1648,8 @@ ${retenir(R`<p>Plus $a$ est proche de 1, plus le pôle est proche du cercle unit
     partiesInfo: {
       p1: { titre: 'Signaux continus & Fourier', couleur: '#3b6fd8', desc: 'Signaux de base, décalage et échelle, convolution, séries de Fourier, transformée de Fourier et ses propriétés. Cours 1 · TD 1.' },
       p2: { titre: 'Échantillonnage & interpolation', couleur: '#d4730b', desc: 'Peigne de Dirac, Shannon, repliement, anti-repliement, interpolateur de Shannon, BOZ, son numérique. Cours 2 · TD 2 · TP 3.' },
-      p3: { titre: 'Signaux discrets, TFtd/TFD & filtres', couleur: '#1a8a5a', desc: 'Suites, opérations, convolution discrète, TFtd, TFD, FFT, H(z), stabilité, filtres RIF et RII. Cours 3 · TD 3 · TD 4.' }
+      p3: { titre: 'Signaux discrets & TFtd/TFD', couleur: '#1a8a5a', desc: 'Suites, opérations, énergie, convolution discrète, sinusoïde discrète, TFtd, TFD, FFT. Cours 3 · TD 3.' },
+      p4: { titre: 'Filtres numériques', couleur: '#cf3a3a', desc: 'Équation aux différences, h(n), H(z), pôles/zéros, stabilité, H(f), RIF/RII, gabarit et synthèse, réjecteur, Matlab. Cours 4 · TD 4 · TP 4.' }
     },
     pratiqueLabel: 'Pratique (calculs, graphes, Matlab)',
     themes: THEMES, tps: TPS, tpsCourt: TPS_COURT, fiches: FICHES, qcm: QCM, lexique: LEXIQUE

@@ -17,6 +17,15 @@
   const EX = (t, h) => `<div class="mex"><b>${t}</b> ${h}</div>`;
   const P = h => `<div class="mp"><b>Pièges.</b> ${h}</div>`;
   const small = o => plot(Object.assign({ w: 230, h: 78 }, o));
+  const gainBA = (b, a, fe) => f => {
+    const w = 2 * PI * f / fe;
+    const ev = c => c.reduce((acc, ck, k) => [acc[0] + ck * cos(k * w), acc[1] - ck * sin(k * w)], [0, 0]);
+    const [nr, ni] = ev(b), [dr, di] = ev(a);
+    return Math.hypot(nr, ni) / Math.hypot(dr, di);
+  };
+  const W50 = 2 * PI * 50 / 1000, R95 = 0.95;
+  const NOTCH_A = [1, -2 * R95 * cos(W50), R95 * R95];
+  const NOTCH_B = [1, -2 * cos(W50), 1].map((x, _, b) => x * NOTCH_A.reduce((t, v) => t + v) / b.reduce((t, v) => t + v));
 
   M.memos = {
 
@@ -418,11 +427,11 @@ ${P(R`$B$ = fréquence <b>max</b> (après développement des produits) · inéga
 
 /* ================================================================ PARTIE 3 */
 p3: {
-  titre: 'Partie 3 — Signaux discrets, TFtd/TFD & filtres',
+  titre: 'Partie 3 — Signaux discrets & TFtd/TFD',
+  maxPt: 11,
   couleur: '#1a8a5a',
   labels: ['Cours', 'Exercices'],
   pages: [
-/* ---------------------------------------------------------------- P3 recto : cours */
 R`
 ${S('Suites (signaux à temps discret)', R`
 <p>$x : \mathbb Z\to\mathbb R$ ; $x(n) = x_a(nT_e)$ ou suite intrinsèque. Rien entre deux indices. Notation $\{\ldots,2,\underset\uparrow{-1},3\}$ (flèche = $n=0$).</p>
@@ -461,51 +470,6 @@ ${F(R`$X[k] = \sum_{n=0}^{N-1}x[n]e^{-j2\pi nk/N}$, \ $f_k = k\frac{f_e}N$, \ $\
 ${table(['Outil', 'Temps', 'Fréquence'], [['Série F.', 'continu périodique', 'raies'], ['TF', 'continu', 'continue'], ['TFtd', 'discret', 'continue périodique'], ['TFD', 'discret N pts', 'discrète N pts']])}
 <p><b>Périodique dans un domaine ⟺ discret dans l'autre.</b></p>
 `)}
-${S('Dans la vraie vie', R`
-<p><b>Moyenne glissante</b> d'un cours de bourse = passe-bas (lisse les variations). <b>Différence</b> $x(n) - x(n-1)$ = détection de variations (contours dans une image). <b>Écho</b> : $y(n) = x(n) + a\,x(n-D)$ (RIF) ; <b>réverbération</b> : $y(n) = x(n) + a\,y(n-D)$ (RII, stable si $|a|\lt1$). <b>Shazam</b>, les accordeurs et les égaliseurs utilisent la <b>FFT</b> ; JPEG et MP3 une transformée proche (DCT).</p>
-`)}
-${S('Filtres numériques', R`
-${F(R`$y(n) = \sum_{k=0}^Mb_kx(n-k) - \sum_{k=1}^Na_ky(n-k)$&emsp;$H(z) = \frac{\sum b_kz^{-k}}{1+\sum a_kz^{-k}}$`)}
-<p><b>$h(n)$</b> = sortie pour $\delta(n)$, caractérise tout : $y = x*h$. <b>Indicielle</b> $s(n) = \sum_{k\le n}h(k)$ → limite $H(1)$.<br>
-<b>Transformée en Z</b> $X(z) = \sum x(n)z^{-n}$ : $x(n-k)\to z^{-k}X$, $x*h\to XH$, $\delta\to1$, $u\to\frac1{1-z^{-1}}$, $a^nu\to\frac1{1-az^{-1}} = \frac z{z-a}$.<br>
-<b>Pôles</b> = racines du dénominateur, <b>zéros</b> = du numérateur (écrire en puissances positives de $z$).</p>
-${F(R`$H(f) = H(z)\big|_{z = e^{j\theta}}$&emsp;<b>stable</b> (causal) $\iff$ tous les pôles $|p_i|\lt1$`)}
-<p>Zéros : aucun rôle pour la stabilité ; zéro sur le cercle en $e^{j\theta_0}$ → $|H(f_0)| = 0$. Pôle près du cercle → pic de gain, réponse lente. $f = 0 \leftrightarrow z = 1$ ; $f = \frac{f_e}2 \leftrightarrow z = -1$.</p>
-${table(['', 'RIF', 'RII'], [['équation', 'que des $x$', '$y$ passés (récursif)'], ['$h(n)$', 'finie = les $b_k$', 'infinie'], ['stabilité', 'toujours', 'pôles dans le cercle'], ['phase', 'peut être linéaire', 'non linéaire'], ['coût', 'beaucoup de coef.', 'peu de coef.']])}
-${K(R`<b>Type</b> : comparer $|H(0)|$ et $|H(\frac{f_e}2)|$ (bas : grand/petit ; haut : petit/grand ; bande : petits aux deux bouts). <b>Coupure</b> −3 dB : $|H(f_c)| = \frac{|H|_{max}}{\sqrt2}$. <b>Astuce</b> : $1+e^{-j\theta} = 2e^{-j\theta/2}\cos\frac\theta2$ ; $1-e^{-j\theta} = 2je^{-j\theta/2}\sin\frac\theta2$.`)}
-${K(R`<b>Lire $|H|$ sur le plan des pôles/zéros</b> : $|H(e^{j\theta})| = |K|\dfrac{\prod \text{dist(point du cercle, zéros)}}{\prod \text{dist(point du cercle, pôles)}}$. Le point $e^{j\theta}$ parcourt le cercle de $z=1$ ($f=0$) à $z=-1$ ($\frac{f_e}2$) : près d'un zéro → creux, près d'un pôle → bosse.`)}
-<p><b>RIF symétrique</b> ($b_k = b_{M-k}$) → phase linéaire $-\frac M2\theta$ (retard de $\frac M2$ échantillons, aucune distorsion).</p>
-${plots(
-  plot({ x: [-0.55, 0.55], y: [-0.1, 2.3], w: 140, h: 75, xl: 'f/fe', fns: [{ f: v => 1 / Math.sqrt(1 - cos(2 * PI * v) + 0.25) }, { f: v => 1 / Math.sqrt(1 + cos(2 * PI * v) + 0.25), cls: 'c2' }], xt: [[-0.5, '-½'], [0.5, '½']], yt: [[2, '2']], cap: 'RII a = 0,5 / −0,5' }),
-  plot({ x: [-0.5, 7.5], y: [-1.1, 1.2], w: 140, h: 75, xl: 'n', stems: [{ n: [0, 1, 2, 3, 4, 5, 6, 7], v: [0, 1, 2, 3, 4, 5, 6, 7].map(n => Math.pow(-0.7, n)) }], cap: '(−0,7)ⁿ u(n) : alterne' })
-)}
-`)}
-${S('Table Z (unilatérale)', R`
-${table(['$x(n)$', '$X(z)$', 'ROC'], [
-  ['$\\delta(n-i)$', '$z^{-i}$', '$z\\ne0$'], ['$u(n)$', '$\\frac{z}{z-1}$', '$|z|\\gt1$'], ['$n\\,u(n)$', '$\\frac{z}{(z-1)^2}$', '$|z|\\gt1$'],
-  ['$a^nu(n)$', '$\\frac{z}{z-a}$', '$|z|\\gt|a|$'], ['$na^nu(n)$', '$\\frac{az}{(z-a)^2}$', '$|z|\\gt|a|$'],
-  ['$\\cos(\\omega_0n)u$', '$\\frac{z(z-\\cos\\omega_0)}{z^2-2z\\cos\\omega_0+1}$', '$|z|\\gt1$'],
-  ['$\\sin(\\omega_0n)u$', '$\\frac{z\\sin\\omega_0}{z^2-2z\\cos\\omega_0+1}$', '$|z|\\gt1$']
-])}
-<p>$x(n-1) \to z^{-1}X + x(-1)$ (au repos : $z^{-1}X$) · $nx(n) \to -z\frac{dX}{dz}$ · $\sum_0^nx(k) \to \frac{X}{1-z^{-1}}$ · <b>valeur initiale</b> $x(0) = \lim_{z\to\infty}X$ · <b>valeur finale</b> $\lim x(n) = \lim_{z\to1}(z-1)X(z)$. ROC : sans pôle ; durée finie → tout le plan.</p>
-`)}
-${S('Systèmes discrets : propriétés', R`
-${table(['Propriété', 'Condition sur $h(n)$ / $H(z)$'], [
-  ['linéaire invariant', '$y = x*h$'], ['causal', '$h(n) = 0$ pour $n\\lt0$ (n’utilise pas $x(n+1)$…)'],
-  ['stable', '$\\sum|h(n)|\\lt\\infty$ ⟺ pôles dans le cercle (causal)'], ['RIF', '$h$ de longueur finie']
-])}
-<p><b>Région de convergence</b> : causal → $|z| \gt \max|p_i|$ ; stable ⟺ elle contient le cercle unité.<br>
-<b>Inverser $H(z)$</b> : éléments simples $\frac{A}{1-p_1z^{-1}} + \frac{B}{1-p_2z^{-1}}$ → $h(n) = (A\,p_1^n + B\,p_2^n)\,u(n)$. Un $z^{-1}$ au numérateur = décalage de 1.</p>
-${F(R`Moyenne glissante sur $M$ points : $H(f) = \frac1M\frac{\sin(M\theta/2)}{\sin(\theta/2)}e^{-j\frac{M-1}2\theta}$, zéros en $f = k\frac{f_e}M$`)}
-${table(['Gabarit', 'Où mettre zéros / pôles'], [
-  ['passe-bas', 'zéro en $z=-1$, pôle près de $z=1$'], ['passe-haut', 'zéro en $z=1$, pôle près de $z=-1$'],
-  ['passe-bande $f_0$', 'pôles près de $e^{\\pm j\\theta_0}$'], ['coupe-bande $f_0$', 'zéros sur $e^{\\pm j\\theta_0}$']
-])}
-${plots(
-  plot({ x: [-2.5, 4.5], y: [-0.3, 1.3], w: 140, h: 55, xl: 'n', stems: [{ n: [-2, -1, 0, 1, 2, 3, 4], v: [0, 0, 1, 0, 0, 0, 0] }], cap: 'δ(n)' }),
-  plot({ x: [-2.5, 4.5], y: [-0.3, 1.3], w: 140, h: 55, xl: 'n', stems: [{ n: [-2, -1, 0, 1, 2, 3, 4], v: [0, 0, 1, 1, 1, 1, 1] }], cap: 'u(n)' })
-)}
-`)}
 ${S('Variables de fréquence', R`
 ${table(['$f$ (Hz)', '$\\nu = f/f_e$', '$\\theta = 2\\pi\\nu$', '$z = e^{j\\theta}$'], [
   ['0', '0', '0', '1'], ['$f_e/4$', '1/4', '$\\pi/2$', '$j$'], ['$f_e/2$ (Nyquist)', '1/2', '$\\pi$', '$-1$'], ['$f_e$ (= 0)', '1', '$2\\pi$', '1']
@@ -513,11 +477,24 @@ ${table(['$f$ (Hz)', '$\\nu = f/f_e$', '$\\theta = 2\\pi\\nu$', '$z = e^{j\\thet
 <p><b>Propriétés TFtd</b> : linéarité ; retard → $e^{-jn_0\theta}$ ; modulation $x(n)e^{jn\theta_0} \to X(\theta-\theta_0)$ ; $x*h \to XH$ ; Parseval $\sum|x(n)|^2 = \frac1{f_e}\int_{-f_e/2}^{f_e/2}|X|^2df$ ; $x$ réel → $|X|$ pair.</p>
 ${small({ x: [-0.55, 0.55], y: [-0.2, 2.8], h: 62, xl: 'f/fe', fns: [{ f: v => 1 / Math.sqrt(1 - 1.2 * cos(2 * PI * v) + 0.36) }], xt: [[-0.5, '-½'], [0.5, '½']], yt: [[2.5, '2,5']], cap: '|TFtd| de 0,6ⁿu(n) : 1/(1−a) en 0, 1/(1+a) en fe/2' })}
 `)}
-${S('Synthèse d’un RIF (idée)', R`
-<p>Passe-bas idéal discret de coupure $\nu_c$ : $h(n) = 2\nu_c\,\mathrm{sinc}(2\nu_cn)$, infini et non causal → on le <b>tronque</b> à $M+1$ points (fenêtre) et on le <b>retarde</b> de $\frac M2$ → RIF causal à phase linéaire. Plus $M$ est grand, plus la coupure est raide.</p>
+${S('Fenêtre rectangulaire, résolution et fuite', R`
+${F(R`$x(n) = 1$ pour $0 \le n \le N-1$ \ $\Rightarrow$ \ $|X(f)| = \left|\dfrac{\sin(N\theta/2)}{\sin(\theta/2)}\right|$, \ zéros en $f = k\dfrac{f_e}{N}$`)}
+<p>Observer $N$ points = multiplier le signal par cette fenêtre → convoluer son spectre par ce « sinc discret ». Lobe principal de largeur $2f_e/N$ : deux raies plus proches que $\approx f_e/N$ se confondent (<b>résolution</b>). Les lobes secondaires font « baver » chaque raie sur les cases voisines (<b>fuite spectrale</b>), sauf si la fréquence tombe pile sur une case $kf_e/N$.</p>
+${small({ x: [-0.5, 0.5], y: [-0.3, 8.8], h: 64, xl: 'f/fe', fns: [{ n: 800, f: v => (abs(v) < 1e-9 ? 8 : abs(sin(8 * PI * v) / sin(PI * v))) }], xt: [[-0.25, '-¼'], [0.125, '1/8'], [0.25, '¼']], yt: [[8, 'N']], cap: '|X| pour N = 8 : zéros tous les fe/8' })}
+`)}
+${S('FFT : le papillon', R`
+<p>On sépare indices pairs ($E$) et impairs ($O$), deux TFD de taille $N/2$, puis, avec $W = e^{-j2\pi/N}$ :</p>
+${F(R`$X[k] = E[k] + W^kO[k]$ \qquad $X[k + \tfrac N2] = E[k] - W^kO[k]$`)}
+<p>On recommence sur chaque moitié ($N = 2^m$) : $\log_2N$ étages de $N/2$ papillons → $\frac N2\log_2N$ multiplications.</p>
+`)}
+${S('Repliement en discret', R`
+<p>$\nu$ et $\nu + 1$ donnent la même suite ; pour une sinusoïde, $\nu$ et $1 - \nu$ aussi. Toute fréquence normalisée se ramène dans $[0, \frac12]$ : $\cos(2\pi\,0{,}7n) = \cos(2\pi\,0{,}3n)$. C'est le repliement de la partie 2, vu côté suite.</p>
 `)}
 ${S('TFtd ↔ TF, et la TFD en pratique', R`
 <p>Si $x(n) = x_a(nT_e)$ : la TFtd est le spectre du signal échantillonné, $X(f) = f_e\sum_kX_a(f-kf_e)$ (copies de la partie 2). <b>Zero-padding</b> (ajouter des zéros) : trace plus de points de la même TFtd, n'améliore <b>pas</b> la résolution (seule la durée $NT_e$ compte). Un cos dont la fréquence ne tombe pas pile sur une case $kf_e/N$ « s'étale » sur les cases voisines.</p>
+`)}
+${S('Dans la vraie vie', R`
+<p><b>Shazam</b> et les <b>accordeurs</b> calculent une FFT pour trouver les fréquences présentes. Un <b>analyseur de spectre</b> audio affiche $|X[k]|$ en temps réel. <b>JPEG</b> et <b>MP3</b> utilisent la DCT, une cousine de la TFD, pour ne garder que les fréquences utiles. Un signal de 1 s analysé par FFT donne une résolution de 1 Hz, quelle que soit $f_e$.</p>
 `)}
 `,
 /* ---------------------------------------------------------------- P3 verso : exercices */
@@ -547,6 +524,171 @@ ${MAT`
   X=(1-a^2)./(1-2*a*cos(th)+a^2); plot(f,X)
 `}
 `)}
+${S('Exos types', R`
+${EX('Convolution', R`$\{\underset\uparrow1,-1,2\}*\{\underset\uparrow2,1\}$ : $y_0 = 2$, $y_1 = 1-2 = -1$, $y_2 = -1+4 = 3$, $y_3 = 2$ → $\{\underset\uparrow2,-1,3,2\}$.`)}
+${EX('Période', R`$f_0 = 3$ kHz, $f_e = 8$ kHz → $\nu_0 = \frac38$ → $N_0 = 8$. $\cos(\frac{\pi}{3}n)$ → $\nu_0 = \frac16$ → 6.`)}
+${EX('TFD', R`$f_e = 1$ kHz, $N = 500$ → $\Delta f = 2$ Hz, durée 0,5 s. Résolution 1 Hz → observer 1 s. Pic Matlab indice 51 ($N = F_e$) → 50 Hz.`)}
+`)}
+
+${S('Exos types : TFD à la main', R`
+${table(['$x[n]$ ($N=4$)', '$X[k]$', 'pourquoi'], [
+  ['$\\{1,0,0,0\\}$ (δ)', '$\\{1,1,1,1\\}$', 'δ → toutes les fréquences'],
+  ['$\\{1,1,1,1\\}$', '$\\{4,0,0,0\\}$', 'constante → seulement $k=0$'],
+  ['$\\{1,-1,1,-1\\}$', '$\\{0,0,4,0\\}$', 'alterne = $f_e/2$ → $k = N/2$'],
+  ['$\\{0,1,0,0\\}$', '$\\{1,-j,-1,j\\}$', 'retard → $e^{-j2\\pi k/4}$']
+])}
+`)}
+${S('Exos types : énergie, TFtd', R`
+${EX('Énergie / puissance', R`$(-0{,}5)^nu(n)$ : $E = \frac1{1-0{,}25} = \frac43$. $\cos(\frac\pi2n) = \{1,0,-1,0\}$ périodique $N_0 = 4$ : $P = \frac{1+0+1+0}4 = \frac12$.`)}
+${EX('TFtd d’une porte', R`$\{1, \underset\uparrow1, 1\}$ → $e^{j\theta} + 1 + e^{-j\theta} = 1 + 2\cos\theta$ (s'annule en $\theta = \pm\frac{2\pi}3$ : $f = \pm\frac{f_e}3$).`)}
+`)}
+${S('Exos types : TFD en pratique', R`
+${EX('Choisir fe et N', R`signal utile ≤ 4 kHz, résolution voulue 2 Hz → $f_e \gt 8$ kHz (ex. 10 kHz) ; $N \ge f_e/\Delta f = 5000$ → FFT de $8192 = 2^{13}$ points, soit 0,82 s de signal.`)}
+${EX('Fréquence d’un pic', R`$f_e = 8000$ Hz, $N = 1024$ ($\Delta f = 7{,}8125$ Hz) : pic en $k = 128$ → 1000 Hz ; pic en $k = 896$ → $k - N = -128$ → la raie négative du même cos ($-1000$ Hz).`)}
+${EX('TFD d’un cosinus', R`$x[n] = \cos(2\pi n/8)$, $N = 8$ : $X[1] = X[7] = 4$, autres nuls (deux raies de hauteur $N/2$, en $k_0$ et $N - k_0$).`)}
+${EX('Sinusoïde repliée', R`$x(n) = \cos(2\pi\,0{,}7n)$ : même suite que $\cos(2\pi\,0{,}3n)$ ; la TFD montre un pic en $\nu = 0{,}3$ (et $0{,}7 = 1 - 0{,}3$ côté « négatif »).`)}
+${EX('Durée et résolution', R`$f_e = 44{,}1$ kHz, $N = 4096$ : $\Delta f \approx 10{,}8$ Hz pour 93 ms de son. Distinguer 440 et 445 Hz ? Il faut $\Delta f \lt 5$ Hz → $N \ge 8820$ (≈ 0,2 s) → FFT de 16 384 points.`)}
+`)}
+${P(R`simplifier $\nu_0$ avant $N_0$ · $x(-n+2)$ : miroir <b>puis</b> droite · TFtd périodique ($f_e$) : tracer une période · $\Delta f = f_e/N = 1/$durée (le zero-padding n'améliore pas la résolution) · $k \gt N/2$ = fréquences négatives · Matlab indexe à 1.`)}
+`
+  ]
+},
+
+/* ================================================================ PARTIE 4 */
+p4: {
+  titre: 'Partie 4 — Filtres numériques',
+  couleur: '#cf3a3a',
+  labels: ['Cours', 'Exercices'],
+  pages: [
+/* ---------------------------------------------------------------- P4 recto : cours */
+R`
+${S('Filtre numérique : 5 représentations', R`
+<p>Linéaire, invariant, causal, au repos. <b>Partie directe</b> $b_k$, <b>partie récursive</b> $a_k$ (signe −, $a_0 = 1$) ; ordre = plus grand retard ; tous les $a_k$ nuls → non récursif → RIF.</p>
+${F(R`$y(n) = \sum_{k=0}^Mb_kx(n-k) - \sum_{k=1}^Na_ky(n-k) \iff H(z) = \dfrac{b_0 + b_1z^{-1} + \dots + b_Mz^{-M}}{1 + a_1z^{-1} + \dots + a_Nz^{-N}}$`)}
+${table(['De → vers', 'Méthode'], [
+  ['équation → $H(z)$', 'TZ terme à terme ($x(n-k) \\to z^{-k}X$), $H = Y/X$'],
+  ['$H(z)$ → équation', 'produit en croix, $z^{-k}Y \\to y(n-k)$, isoler $y(n)$'],
+  ['équation → $h(n)$', 'entrée $\\delta(n)$, récurrence'],
+  ['$H(z)$ → $h(n)$', 'table : $\\frac1{1-az^{-1}} \\to a^nu(n)$, $z^{-k}$ = retard'],
+  ['$H(z)$ ↔ pôles, zéros', 'puissances positives de $z$ ; $K$ par une condition de gain'],
+  ['$h(n)$ → indicielle', '$s(n) = \\sum_0^nh(k)$ → $H(1)$'],
+  ['$H(z)$ → $H(f)$', '$z = e^{j2\\pi f/f_e}$, angle moitié'],
+  ['$H(f)$ → type, $f_c$', '$z = 1$ ($f=0$) vs $z = -1$ ($f_e/2$) ; $|H(f_c)| = \\frac{\\max|H|}{\\sqrt2}$']
+])}
+`)}
+${S('Pôles, zéros, stabilité', R`
+${F(R`$H(z) = K\dfrac{(z-z_1)(z-z_2)\cdots}{(z-p_1)(z-p_2)\cdots}$&emsp;stable $\iff \sum|h(n)| \lt \infty \iff$ tous les $|p_i| \lt 1$`)}
+<p>Chaque pôle apporte un terme $p^nu(n)$ à $h$ : il ne décroît que si $|p| \lt 1$. RIF : pôles en 0 → toujours stable. Pôle sur le cercle : instable. Pôle proche du cercle : $h$ décroît lentement. Les zéros n'interviennent pas. Le diagramme fixe $H$ à $K$ près (sans condition de gain, $K = 1$).</p>
+${F(R`$|H(f)| = |K|\dfrac{\prod|e^{j\omega} - z_i|}{\prod|e^{j\omega} - p_i|}$ (distances aux zéros / aux pôles)`)}
+<p>$e^{j\omega}$ parcourt le demi-cercle de $z = 1$ ($f = 0$) à $z = -1$ ($f_e/2$) : près d'un zéro → creux (sur le cercle : $|H| = 0$) ; près d'un pôle → bosse ; racine en 0 → aucun effet.</p>
+`)}
+${S('Réponse fréquentielle', R`
+<p>$H(f) = H(z)|_{z = e^{j\omega}} = \sum h(n)e^{-jn\omega}$, $\omega = 2\pi f/f_e$ ; périodique $f_e$ ; $f = 0, \frac{f_e}4, \frac{f_e}2$ ↔ $z = 1, j, -1$.</p>
+${F(R`$A\cos(\omega_0n + \theta) \to A|H(f_0)|\cos(\omega_0n + \theta + \varphi(f_0))$&emsp;$G_{dB} = 20\log_{10}|H|$`)}
+${table(['$|H|$', '1', '$1/\\sqrt2$', '1/2', '0,1', '0,01'], [['dB', '0', '−3', '−6', '−20', '−40']])}
+<p>$|H|$ pair, $\varphi$ impaire. $|H| = \frac{|\text{num}|}{|\text{dén}|}$, $\varphi = \arg\text{num} - \arg\text{dén}$ ; amplitude négative → $\pm\pi$ ; facteur $j$ → $+\frac\pi2$.</p>
+${F(R`$H|_{z=1} = \dfrac{\sum b_k}{1 + \sum a_k}$&emsp;$H|_{z=-1} = \dfrac{\sum(-1)^kb_k}{1 + \sum(-1)^ka_k}$`)}
+${table(['Type', 'en 0', 'en $f_e/2$'], [['passe-bas', 'grand', 'faible'], ['passe-haut', 'faible', 'grand'], ['passe-bande', 'faible', 'faible (max au milieu)'], ['coupe-bande', 'grand', 'grand (creux au milieu)']])}
+`)}
+${S('RIF ou RII', R`
+${table(['', 'RIF', 'RII'], [
+  ['équation', 'non récursive', 'récursive'], ['$h(n)$', 'finie, $h(n) = b_n$', 'infinie'],
+  ['$H(z)$', 'polynôme en $z^{-1}$', 'fraction rationnelle'], ['pôles', 'tous en 0', 'au moins un non nul'],
+  ['stabilité', 'toujours', 'si tous les $|p_i| \\lt 1$'], ['phase', 'linéaire si $h$ symétrique (retard $M/2$)', 'non linéaire'],
+  ['sélectivité', 'ordre élevé', 'peu de coefficients'], ['synthèse', 'fenêtrage : fir1', 'analogique : butter']
+])}
+<p><b>Schéma-blocs</b> : un bloc $z^{-1}$ par retard (mémoire $T_e$), un multiplieur par coefficient ; RIF = partie directe seule ; RII = sortie retardée réinjectée.</p>
+`)}
+${S('Gabarit et synthèse', R`
+<p><b>Gabarit</b> : bande passante $[0, f_p]$ : $1-\delta_p \le |H| \le 1+\delta_p$ ; bande coupée $[f_s, f_e/2]$ : $|H| \le \delta_s$ ; transition $f_s - f_p$ ; $A_s = -20\log_{10}\delta_s$. Ex. ($f_e = 1000$) : 0–100 Hz perte ≤ 1 dB ($\ge 0{,}891$), rejet ≥ 40 dB ($\le 0{,}01$) au-delà de 200 Hz.</p>
+${K(R`<b>RIF (fenêtre)</b> : ① $h_d(n) = 2\nu_c\,\mathrm{sinc}(2\nu_cn)$ ($\nu_c = f_c/f_e$) ② garder $M+1$ valeurs, décaler de $M/2$ ③ Hamming $0{,}54 - 0{,}46\cos(2\pi n/M)$ ④ normaliser $\sum h = 1$. ${c`fir1(32, 150/(fe/2))`} : rejet &gt; 46 dB (rectangulaire ≈ 28 dB), retard 16 ms. $M$ ↗ : transition plus étroite, retard plus long.`)}
+${K(R`<b>RII (bilinéaire)</b> : $s = 2f_e\frac{1-z^{-1}}{1+z^{-1}}$ ; conserve la stabilité ($\Re s \lt 0 \to |z| \lt 1$) ; déforme les fréquences $\Omega = 2f_e\tan(\pi f/f_e)$ (précompensé). Butterworth : monotone ; Chebyshev : ondule dans 1 bande ; elliptique : dans les 2, ordre minimal. ${c`[b,a] = butter(N, fc/(fe/2))`}.`)}
+`)}
+${S('Réjecteur 50 Hz', R`
+${F(R`$H(z) = K\dfrac{1 - 2\cos\omega_0z^{-1} + z^{-2}}{1 - 2r\cos\omega_0z^{-1} + r^2z^{-2}}$, $\omega_0 = 2\pi f_0/f_e$`)}
+<p>Zéros $e^{\pm j\omega_0}$ ($|H(f_0)| = 0$), pôles $re^{\pm j\omega_0}$ juste derrière ($|H| \approx 1$ ailleurs) ; $r \to 1$ : encoche étroite, transitoire long. $K$ : ${c`b = b*sum(a)/sum(b)`} (gain 1 en 0).</p>
+${small({ x: [0, 500], y: [-0.05, 1.15], h: 62, xl: 'f (Hz)', fns: [{ n: 1500, f: gainBA(NOTCH_B, NOTCH_A, 1000) }], xt: [[50, '50'], [250, '250'], [500, '500']], cap: 'fe = 1000 Hz, f₀ = 50 Hz, r = 0,95' })}
+`)}
+${S('Matlab (TP 4)', MAT`
+  b = [b0 b1 ... bM]; a = [1 a1 ... aN];   % signe - !
+  [z,p,k] = tf2zpk(b,a); zplane(z,p)       % poles, zeros
+  isstable(b,a)                            % 1 si stable
+  [h,n] = impz(b,a,N); [s,n] = stepz(b,a,N)
+  [H,f] = freqz(b,a,1024,fe);              % 0..fe/2
+  plot(f, 20*log10(abs(H)))                % gain dB
+  y = filter(b,a,x);                       % equation
+  b = fir1(M, fc/(fe/2));                  % RIF Hamming
+  [b,a] = butter(N, fc/(fe/2));            % RII
+  % W = f/(fe/2) : W = 1 <-> fe/2 ; h(1) = h(0)
+`)}
+${S('Table Z (unilatérale)', R`
+${table(['$x(n)$', '$X(z)$', 'ROC'], [
+  ['$\\delta(n-i)$', '$z^{-i}$', '$z\\ne0$'], ['$u(n)$', '$\\frac{z}{z-1}$', '$|z|\\gt1$'], ['$n\\,u(n)$', '$\\frac{z}{(z-1)^2}$', '$|z|\\gt1$'],
+  ['$a^nu(n)$', '$\\frac{z}{z-a}$', '$|z|\\gt|a|$'], ['$na^nu(n)$', '$\\frac{az}{(z-a)^2}$', '$|z|\\gt|a|$'],
+  ['$\\cos(\\omega_0n)u$', '$\\frac{z(z-\\cos\\omega_0)}{z^2-2z\\cos\\omega_0+1}$', '$|z|\\gt1$'],
+  ['$\\sin(\\omega_0n)u$', '$\\frac{z\\sin\\omega_0}{z^2-2z\\cos\\omega_0+1}$', '$|z|\\gt1$']
+])}
+<p>$x(n-1) \to z^{-1}X + x(-1)$ (au repos : $z^{-1}X$) · $nx(n) \to -z\frac{dX}{dz}$ · $\sum_0^nx(k) \to \frac{X}{1-z^{-1}}$ · <b>valeur initiale</b> $x(0) = \lim_{z\to\infty}X$ · <b>valeur finale</b> $\lim x(n) = \lim_{z\to1}(z-1)X(z)$. ROC : sans pôle ; durée finie → tout le plan.</p>
+`)}
+${S('Systèmes discrets : propriétés', R`
+${table(['Propriété', 'Condition sur $h(n)$ / $H(z)$'], [
+  ['linéaire invariant', '$y = x*h$'], ['causal', '$h(n) = 0$ pour $n\\lt0$ (n’utilise pas $x(n+1)$…)'],
+  ['stable', '$\\sum|h(n)|\\lt\\infty$ ⟺ pôles dans le cercle (causal)'], ['RIF', '$h$ de longueur finie']
+])}
+<p><b>Région de convergence</b> : causal → $|z| \gt \max|p_i|$ ; stable ⟺ elle contient le cercle unité.<br>
+<b>Inverser $H(z)$</b> : éléments simples $\frac{A}{1-p_1z^{-1}} + \frac{B}{1-p_2z^{-1}}$ → $h(n) = (A\,p_1^n + B\,p_2^n)\,u(n)$. Un $z^{-1}$ au numérateur = décalage de 1.</p>
+${F(R`Moyenne glissante sur $M$ points : $H(f) = \frac1M\frac{\sin(M\theta/2)}{\sin(\theta/2)}e^{-j\frac{M-1}2\theta}$, zéros en $f = k\frac{f_e}M$`)}
+${table(['Gabarit', 'Où mettre zéros / pôles'], [
+  ['passe-bas', 'zéro en $z=-1$, pôle près de $z=1$'], ['passe-haut', 'zéro en $z=1$, pôle près de $z=-1$'],
+  ['passe-bande $f_0$', 'pôles près de $e^{\\pm j\\theta_0}$'], ['coupe-bande $f_0$', 'zéros sur $e^{\\pm j\\theta_0}$']
+])}
+`)}
+${S('Dans la vraie vie', R`
+<p><b>Moyenne glissante</b> d'un cours de bourse = passe-bas (lisse les variations). <b>Différence</b> $x(n) - x(n-1)$ = détection de variations (contours dans une image). <b>Écho</b> : $y(n) = x(n) + a\,x(n-D)$ (RIF) ; <b>réverbération</b> : $y(n) = x(n) + a\,y(n-D)$ (RII, stable si $|a|\lt1$). <b>Shazam</b>, les accordeurs et les égaliseurs utilisent la <b>FFT</b> ; JPEG et MP3 une transformée proche (DCT).</p>
+`)}
+`,
+/* ---------------------------------------------------------------- P4 verso : exercices */
+R`
+${S('Le filtre exemple du cours, de A à Z', R`
+<p>$y(n) = 0{,}5\,y(n-1) + 0{,}25\,x(n) + 0{,}25\,x(n-1)$ → ${c`b = [0.25 0.25]; a = [1 -0.5];`}</p>
+${table(['', 'Résultat'], [
+  ['$h(n)$', '$0{,}25 ;\\ 0{,}375 ;\\ 0{,}1875\\ldots$ : $h(0) = 0{,}25$, $h(n) = 0{,}75\\cdot0{,}5^n$ → RII'],
+  ['$s(n)$', '$1 - 0{,}75\\cdot0{,}5^n$ → 1'],
+  ['$H(z)$', '$0{,}25\\frac{1+z^{-1}}{1-0{,}5z^{-1}} = 0{,}25\\frac{z+1}{z-0{,}5}$ ; zéro −1, pôle 0,5 : stable'],
+  ['table', '$h = 0{,}25\\cdot0{,}5^nu(n) + 0{,}25\\cdot0{,}5^{n-1}u(n-1)$'],
+  ['type', '$H(1) = 1$, $H(-1) = 0$ : passe-bas'],
+  ['$|H|$', '$\\frac{0{,}5\\cos(\\omega/2)}{\\sqrt{1{,}25-\\cos\\omega}}$'],
+  ['$f_c$', '$\\frac{1+\\cos\\omega_c}{8(1{,}25-\\cos\\omega_c)} = \\frac12$ → $\\cos\\omega_c = 0{,}8$ → $f_c \\approx 0{,}102f_e$']
+])}
+<p>Diagramme → $H$ : $H = K\frac{z+1}{z-0{,}5}$, $H(1) = K\frac{2}{0{,}5} = 1$ → $K = 0{,}25$.</p>
+`)}
+${S('TP 4 — Partie 1 : décrire F₁', R`
+<p>$y(n) + 0{,}2\,y(n-2) = x(n) + 2\,x(n-1)$.<br>
+<b>Q1.1</b> $H(z) = \frac{1 + 2z^{-1}}{1 + 0{,}2z^{-2}} = \frac{z^2 + 2z}{z^2 + 0{,}2}$. ${c`b = [1 2 0]`} : même nombre de coefficients que ${c`a = [1 0 0.2]`}, sinon le numérateur en puissances positives serait faux (le 0 donne le zéro en $z = 0$).<br>
+<b>Q1.2</b> zéros $0$ et $-2$, pôles $\pm j\sqrt{0{,}2} = \pm0{,}447j$, $k = 1$ ; récursif → <b>RII</b> ; $|p| = 0{,}447 \lt 1$ → <b>stable</b> (le zéro $-2$ hors du cercle n'y change rien).<br>
+<b>Q1.3</b> TD 4 ex. 1 : ${c`b = [1 0 -1]; a = [1 0 0];`}</p>
+`)}
+${S('TP 4 — Partie 2 : réponses temporelles', R`
+<p><b>Q2.1</b> $y(n) = x(n) + 2x(n-1) - 0{,}2y(n-2)$ : $h = 1 ;\ 2 ;\ -0{,}2 ;\ -0{,}4 ;\ 0{,}04 ;\ 0{,}08\ldots$ jamais nulle : chaque valeur est réinjectée (×−0,2 tous les 2 pas) → RII.<br>
+<b>Q2.2</b> ${c`filter`} applique l'<b>équation aux différences</b> (vecteurs b, a) : même résultat qu'${c`impz`}.<br>
+<b>Q2.3</b> valeur finale $= H(1) = \frac{\sum b}{\sum a} = \frac{3}{1{,}2} = 2{,}5$ ; ${c`cumsum(h)`} = ${c`stepz`}.<br>
+<b>Q2.4</b> moyenneur : $h$ de 2 valeurs → RIF ; $y = ay(n-1)+x$ ($a$ = ${c`[1 -a]`}) : $h = a^n$, infinie → RII ; $a = 0{,}5$ décroît vite, $0{,}9$ lentement (pôle près du cercle) ; $a = 1{,}1$ explose, ${c`isstable`} = 0.</p>
+`)}
+${S('TP 4 — Partie 3 : réponse fréquentielle', R`
+<p><b>Q3.1</b> abscisse 1 de ${c`freqz(b,a)`} = $f_e/2$.<br>
+<b>Q3.2</b> $|H(0)| = 2{,}5$ ; $|H(f_e/2)| = |\frac{1-2}{1+0{,}2}| = 0{,}83$ ; maximum ≈ 2,95 vers $0{,}2f_e$ (pôles $\pm0{,}447j$, côté $f_e/4$).<br>
+<b>Q3.3</b> ${c`max(abs(Hc - H))`} ≈ $10^{-15}$ : freqz évalue bien $H$ sur le cercle.<br>
+<b>Q3.4</b> modules pairs ; moyenneur passe-bas, différenceur passe-haut. <b>Q3.5</b> $f_c = 250$ Hz ($f_e/4$) pour les deux.<br>
+<b>Q3.6</b> $a = 0{,}5$ : passe-bas, $f_c \approx 115$ Hz ; $a = 0{,}9$ : passe-bas, gain 10 (20 dB) en 0, $f_c \approx 17$ Hz (pôle près de $z = 1$) ; $a = -0{,}9$ : passe-haut, $f_c \approx 483$ Hz (pôle près de $z = -1$).</p>
+${small({ x: [0, 0.5], y: [-0.1, 3.3], h: 62, xl: 'f/fe', fns: [{ f: gainBA([1, 2, 0], [1, 0, 0.2], 1) }], xt: [[0.2, '0,2'], [0.5, '½']], yt: [[2.5, '2,5']], cap: '|H| de F₁ : 2,5 en 0, ≈ 2,95 vers 0,2 fe, 0,83 en fe/2' })}
+`)}
+${S('TP 4 — Partie 4 : moyenne glissante', R`
+<p><b>Q4.1</b> ${c`b = ones(1,L)/L`} : RIF d'ordre $L-1$ (3 pour $L = 4$), passe-bas : lisse le bruit.<br>
+<b>Q4.2</b> ${c`conv(x,b)`} a $N + L - 1$ valeurs (la convolution déborde de $L-1$) ; ses $N$ premières = ${c`filter`} car $h = b$. RII : $h$ infinie → ${c`filter`}.<br>
+<b>Q4.3</b> $|H(f)| = \left|\frac{\sin(\pi fL/f_e)}{L\sin(\pi f/f_e)}\right|$ : à 262 Hz, $L = 4$ → 0,98 ; $L = 20$ → 0,61. Plus de bruit enlevé, mais signal utile atténué : <b>compromis</b>.<br>
+<b>Q4.4</b> zéros en $kf_e/L$ : $L = 4$ → 2500 (et 5000) Hz : supprime 2500, pas 1000 ; $L = 20$ → 500, 1000, …, 2500 Hz : supprime les deux.</p>
+${small({ x: [0, 5000], y: [-0.05, 1.15], h: 62, xl: 'f (Hz)', fns: [{ n: 1200, f: f => (f < 1 ? 1 : abs(sin(PI * f * 4 / 1e4) / (4 * sin(PI * f / 1e4)))) }, { n: 1200, f: f => (f < 1 ? 1 : abs(sin(PI * f * 20 / 1e4) / (20 * sin(PI * f / 1e4)))), cls: 'c2' }], xt: [[1000, '1000'], [2500, '2500'], [5000, '5000']], cap: 'L = 4 (couleur du thème) et L = 20 (orange), fe = 10 kHz' })}
+`)}
 ${S('TD 4 — Ex. 1 : pôles en 0 (×2), zéros en ±1', R`
 <p>(a) cercle unité, × double en 0, ○ en $+1$ et $-1$. (b) $H(z) = \frac{(z-1)(z+1)}{z^2} = 1 - z^{-2}$. (c) $y(n) = x(n) - x(n-2)$. (d) pas de $y$ passé → <b>RIF</b>, $h = \{\underset\uparrow1, 0, -1\}$. (e) pôles en 0 → <b>stable</b>.<br>
 Bonus : $H(f) = 1-e^{-2j\theta} = 2je^{-j\theta}\sin\theta$, $|H| = 2|\sin\frac{2\pi f}{f_e}|$ : nul en 0 et $\frac{f_e}2$, max en $\frac{f_e}4$ → <b>passe-bande</b>. Indicielle : $s = \{\underset\uparrow1, 1, 0, 0\ldots\}$.</p>
@@ -575,31 +717,16 @@ ${plots(
   plot({ x: [-1.5, 1.5], y: [-1.3, 1.3], w: 120, h: 110, equal: true, fns: [{ fx: t => cos(t), fy: t => sin(t), t: [0, 2 * PI], cls: 'muted' }], pts: [{ x: 0.6, y: 0, k: 'pole', l: 'a' }, { x: 0, y: 0, k: 'zero' }], cap: 'Ex. 4 (a = 0,6)' })
 )}
 `)}
-${S('Exos types', R`
-${EX('Convolution', R`$\{\underset\uparrow1,-1,2\}*\{\underset\uparrow2,1\}$ : $y_0 = 2$, $y_1 = 1-2 = -1$, $y_2 = -1+4 = 3$, $y_3 = 2$ → $\{\underset\uparrow2,-1,3,2\}$.`)}
-${EX('Période', R`$f_0 = 3$ kHz, $f_e = 8$ kHz → $\nu_0 = \frac38$ → $N_0 = 8$. $\cos(\frac{\pi}{3}n)$ → $\nu_0 = \frac16$ → 6.`)}
-${EX('TFD', R`$f_e = 1$ kHz, $N = 500$ → $\Delta f = 2$ Hz, durée 0,5 s. Résolution 1 Hz → observer 1 s. Pic Matlab indice 51 ($N = F_e$) → 50 Hz.`)}
-${EX('Stabilité', R`$y = 1{,}2y(n-1)+x(n)$ → pôle 1,2 → instable ; $h = 1{,}2^n$ explose.`)}
-`)}
-${S('Exos types : TFD à la main et filtres', R`
-${table(['$x[n]$ ($N=4$)', '$X[k]$', 'pourquoi'], [
-  ['$\\{1,0,0,0\\}$ (δ)', '$\\{1,1,1,1\\}$', 'δ → toutes les fréquences'],
-  ['$\\{1,1,1,1\\}$', '$\\{4,0,0,0\\}$', 'constante → seulement $k=0$'],
-  ['$\\{1,-1,1,-1\\}$', '$\\{0,0,4,0\\}$', 'alterne = $f_e/2$ → $k = N/2$'],
-  ['$\\{0,1,0,0\\}$', '$\\{1,-j,-1,j\\}$', 'retard → $e^{-j2\\pi k/4}$']
-])}
+${S('Exos types : filtres', R`
 ${EX('RII + RIF', R`$y = 0{,}5y(n\!-\!1)+x(n)+x(n\!-\!1)$ : $H = \frac{1+z^{-1}}{1-0{,}5z^{-1}}$ ; pôle 0,5 (stable), zéro $-1$ (tue $\frac{f_e}2$ → passe-bas) ; $h(0) = 1$, $h(n) = 1{,}5\cdot0{,}5^{n-1}$ pour $n\ge1$ ; $H(1) = \frac{2}{0{,}5} = 4$.`)}
 ${EX('Lire le type', R`zéros en $\pm j$ ($\theta = \pm\frac\pi2$) → coupe $\frac{f_e}4$ : <b>coupe-bande</b> (réjecteur) ; pôle en $0{,}9$ → bosse en $f = 0$ : passe-bas.`)}
 ${small({ x: [-0.5, 6.5], y: [-0.2, 2.2], xl: 'n', stems: [{ n: [0, 1, 2, 3, 4, 5, 6], v: [0, 1, 2, 3, 4, 5, 6].map(n => (1 - Math.pow(0.5, n + 1)) / 0.5) }], hlines: [2], cap: 'Indicielle TD 4-4 (a = 0,5) → 1/(1−a) = 2' })}
-`)}
-${S('Exos types : énergie, ordre 2, inverse', R`
-${EX('Énergie / puissance', R`$(-0{,}5)^nu(n)$ : $E = \frac1{1-0{,}25} = \frac43$. $\cos(\frac\pi2n) = \{1,0,-1,0\}$ périodique $N_0 = 4$ : $P = \frac{1+0+1+0}4 = \frac12$.`)}
 ${EX('Ordre 2', R`$y = x(n) + 0{,}25\,y(n\!-\!2)$ : $H = \frac1{1-0{,}25z^{-2}}$, pôles $\pm0{,}5$ → stable. Éléments simples : $\frac12\big[\frac1{1-0{,}5z^{-1}} + \frac1{1+0{,}5z^{-1}}\big]$ → $h(n) = \frac12[0{,}5^n + (-0{,}5)^n]$ = $0{,}5^n$ si $n$ pair, 0 sinon.`)}
 ${EX('h depuis H(z)', R`$H = \frac{1-z^{-1}}{1-0{,}8z^{-1}}$ → $h = 0{,}8^nu(n) - 0{,}8^{n-1}u(n-1)$ : $h(0) = 1$, $h(n\ge1) = -0{,}2\cdot0{,}8^{n-1}$. Zéro en 1 → passe-haut ; pôle 0,8 → stable.`)}
-${EX('TFtd d’une porte', R`$\{1, \underset\uparrow1, 1\}$ → $e^{j\theta} + 1 + e^{-j\theta} = 1 + 2\cos\theta$ (s'annule en $\theta = \pm\frac{2\pi}3$ : $f = \pm\frac{f_e}3$).`)}
 ${EX('Convolution avec u', R`$a^nu(n)*u(n) = \sum_{k=0}^na^k = \frac{1-a^{n+1}}{1-a}$ = réponse indicielle du RII.`)}
+${EX('Stabilité', R`$y = 1{,}2y(n-1)+x(n)$ → pôle 1,2 → instable ; $h = 1{,}2^n$ explose.`)}
 `)}
-${P(R`simplifier $\nu_0$ avant $N_0$ · $x(-n+2)$ : miroir <b>puis</b> droite · zéros ≠ stabilité · RIF toujours stable · TFtd périodique ($f_e$) · Matlab indexe à 1.`)}
+${P(R`confondre $f$, $f/f_e$ et $W = f/(f_e/2)$ · oublier le signe des $a_k$ · ordre $M$ ≠ longueur $M+1$ · oublier les pôles en 0 · regarder les zéros pour la stabilité · oublier les sauts de $\pm\pi$ de la phase · confondre $f_c$ (−3 dB) et $f_p$ · ignorer le transitoire initial.`)}
 `
   ]
 }

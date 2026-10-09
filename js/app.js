@@ -451,6 +451,7 @@
   // une colonne de trop apparaît à droite de la zone dès que le contenu déborde.
   function fitMemoText() {
     if ($('#view-memo').hidden) return;
+    const maxOf = sheet => { const k = sheet.closest('.memo').dataset.k; return (M.memos[k] && M.memos[k].maxPt) || M.memoMaxPt || 9.5; };   // une matière ou une partie peu fournie peut écrire plus gros
     document.querySelectorAll('.sheet').forEach(sheet => {
       const cols = sheet.querySelector('.sheet-cols');
       const overflows = () => {
@@ -460,18 +461,37 @@
         return [...cols.children].some(e => e.getBoundingClientRect().right > box.right + 2) ||
           [...cols.querySelectorAll('.katex-html, table, svg, .mf')].some(e => e.getBoundingClientRect().width > colW);
       };
-      let lo = 5.8, hi = (M && M.memoMaxPt) || 9.5;   // une matière peu fournie peut écrire plus gros
-      for (let i = 0; i < 9; i++) {
+      const tryPt = pt => { sheet.style.fontSize = pt + 'pt'; return !overflows(); };
+      // Réajustement : on cherche près de la taille précédente (bien plus rapide), sinon sur toute la plage.
+      const prev = parseFloat(sheet.dataset.fit);
+      const max = maxOf(sheet);
+      let lo = 5.8, hi = max, steps = 9;
+      if (prev) {
+        const l = Math.max(5.8, prev - 0.8), h = max;
+        if (tryPt(l)) { lo = l; hi = h; steps = 7; }
+      }
+      for (let i = 0; i < steps; i++) {
         const mid = (lo + hi) / 2;
-        sheet.style.fontSize = mid + 'pt';
-        if (overflows()) hi = mid; else lo = mid;
+        if (tryPt(mid)) lo = mid; else hi = mid;
       }
       // Marge de 3 % : les autres navigateurs calculent le texte un peu différemment.
+      sheet.dataset.fit = lo;
       sheet.style.fontSize = (lo * 0.97).toFixed(2) + 'pt';
     });
   }
-  const refitMemos = () => { math($('#memos')); fitMemoText(); };
-  if (document.fonts) document.fonts.ready.then(refitMemos);
+  // Les polices (Inter, puis celles des formules KaTeX) arrivent après coup et changent la largeur
+  // du texte : on réajuste, mais une seule fois par rafale d'événements (300 ms après le dernier).
+  let refitTimer = null, refits = 0;
+  const scheduleFit = () => {
+    if (refits >= 8) return;
+    clearTimeout(refitTimer);
+    refitTimer = setTimeout(() => { refits++; fitMemoText(); }, 300);
+  };
+  const refitMemos = () => { math($('#memos')); scheduleFit(); };
+  if (document.fonts) {
+    document.fonts.ready.then(refitMemos);
+    document.fonts.addEventListener('loadingdone', scheduleFit);
+  }
   window.addEventListener('load', refitMemos);
 
   $('#memos').addEventListener('click', e => {
