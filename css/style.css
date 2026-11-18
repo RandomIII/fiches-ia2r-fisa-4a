@@ -175,6 +175,13 @@ th + th, td + td { border-left: 1px solid var(--line); }
 .uml { margin: 14px 0; padding: 14px; border: 1px dashed var(--line); border-radius: 10px; background: color-mix(in srgb, var(--soft) 50%, transparent); overflow-x: auto; text-align: center; }
 .uml-svg { max-width: 100%; height: auto; display: inline-block; }
 .uml figcaption { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+
+/* ---------- Schémas simples (figure + SVG en currentColor) ---------- */
+.fig { margin: 14px 0; padding: 12px; border: 1px dashed var(--line); border-radius: 10px; background: color-mix(in srgb, var(--soft) 50%, transparent); text-align: center; color: var(--ink); }
+.fig svg { max-width: 100%; height: auto; }
+.fig figcaption { font-size: 12.5px; color: var(--muted); margin-top: 6px; }
+.sheet .fig { margin: 6px 0; padding: 6px; }
+.sheet .fig figcaption { font-size: .82em; margin-top: 3px; }
 .u-box { fill: var(--uml-fill); stroke: var(--uml-stroke); stroke-width: 1.3; }
 .u-hl .u-box { fill: var(--uml-hl); stroke: #3b6fd8; stroke-width: 1.8; }
 .u-sep { stroke: var(--uml-stroke); stroke-width: 1; }
@@ -362,6 +369,8 @@ kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5p
 .sheet-cols { flex: 1; min-height: 0; overflow: hidden; column-count: 3; column-gap: 2.8mm; column-fill: auto; column-rule: 1px solid #ecebe6; }
 
 .ms { margin: 0 0 1mm; }
+/* Mémo DoE (peu dense) : on garde chaque section entière dans une colonne, pas de coupure au milieu. */
+.memo[data-k="intro"] .ms { break-inside: avoid; }
 .ms > h3 { break-after: avoid; margin: 0 0 .5mm; font-size: 1.09em; color: #fff; background: var(--c); padding: .25mm 1.2mm; border-radius: 1mm; letter-spacing: -.01em; }
 .ms p, .ms ul, .ms ol { margin: .3mm 0; }
 .ms ul, .ms ol { padding-left: 3mm; }
