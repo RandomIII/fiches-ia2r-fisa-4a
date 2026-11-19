@@ -12,9 +12,13 @@
     if (old && !store.get('done:genie-logiciel', null)) store.set('done:genie-logiciel', old);
   })();
 
-  // ?memo-print=1 : utilisé pour générer les PDF des mémos (seules les feuilles sont imprimées).
-  const PRINT_MODE = new URLSearchParams(location.search).has('memo-print');
-  if (PRINT_MODE) document.body.classList.add('print-memo', 'print-all');
+  // ?memo-print : génère les PDF des mémos (seules les feuilles sont imprimées).
+  //   ?memo-print=1 (ou vide) : tous les mémos de la vue ; ?memo-print=<clé> : ce mémo seul.
+  const PRINT_KEY = new URLSearchParams(location.search).get('memo-print');
+  const PRINT_MODE = PRINT_KEY !== null;
+  const PRINT_ALL = PRINT_MODE && (!PRINT_KEY || PRINT_KEY === '1');
+  if (PRINT_MODE) document.body.classList.add('print-memo');
+  if (PRINT_ALL) document.body.classList.add('print-all');
 
   let M = null;                       // matière ouverte
   let scope = null;                   // partie ouverte ('p1', ..., 'tout'), seulement si la matière a des parties
@@ -431,6 +435,11 @@
         </article>`).join('')}</div>
       </section>`;
     }).join('') || '<p class="empty">Pas encore de mémo pour cette matière.</p>';
+    // ?memo-print=<clé> : n'imprimer que ce mémo (les autres sont masqués par la CSS print).
+    if (PRINT_MODE && !PRINT_ALL) {
+      const only = $(`.memo[data-k="${PRINT_KEY}"]`);
+      if (only) only.classList.add('printing');
+    }
     math($('#memos'));
     fitSheets();
     fitMemoText();

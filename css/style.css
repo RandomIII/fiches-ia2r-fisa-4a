@@ -370,7 +370,7 @@ kbd { border: 1px solid var(--line); border-bottom-width: 2px; border-radius: 5p
 
 .ms { margin: 0 0 1mm; }
 /* Mémo DoE (peu dense) : on garde chaque section entière dans une colonne, pas de coupure au milieu. */
-.memo[data-k="intro"] .ms { break-inside: avoid; }
+.memo[data-k="intro"] .ms, .memo[data-k="qcm"] .ms { break-inside: avoid; }
 .ms > h3 { break-after: avoid; margin: 0 0 .5mm; font-size: 1.09em; color: #fff; background: var(--c); padding: .25mm 1.2mm; border-radius: 1mm; letter-spacing: -.01em; }
 .ms p, .ms ul, .ms ol { margin: .3mm 0; }
 .ms ul, .ms ol { padding-left: 3mm; }

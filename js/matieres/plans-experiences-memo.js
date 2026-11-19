@@ -181,6 +181,65 @@ ${S('Mini-glossaire', R`
 `)}
 `
   ]
+},
+
+/* ================================================================ MÉMO EXPRESS QCM */
+qcm: {
+  titre: 'Spécial QCM — l\'antisèche d\'une page',
+  couleur: '#6f42c1',
+  maxPt: 13,
+  labels: ['Révision express'],
+  pages: [
+R`
+${S('Définitions (par cœur)', R`
+${table(['Terme', 'En une phrase'], [
+  ['Facteur $U$', 'ce qu\'on <b>règle</b> (entrée contrôlée)'],
+  ['Réponse $Y$', 'ce qu\'on <b>mesure</b> après l\'essai'],
+  ['Effet', 'variation de $Y$ due à un facteur'],
+  ['Unité', 'l\'objet sur lequel on agit'],
+  ['Latente $Z$', 'non contrôlée, peut fausser'],
+  ['Essai (run)', 'une ligne du plan']
+])}
+`)}
+${S('Pièges : à ne pas confondre', R`
+${table(['Ceci…', '…pas cela'], [
+  ['<b>Replicate</b> : unités ≠ → variance', '<b>Repeated</b> : même unité → moyenner'],
+  ['<b>Biais</b> : systématique → étalonner', '<b>Aléatoire</b> : moyenne 0 → répéter'],
+  ['<b>Screening</b> : quels facteurs comptent', '<b>Optimisation</b> : meilleur réglage $u^\\star$'],
+  ['<b>Facteur</b> : on règle', '<b>Réponse</b> : on mesure'],
+  ['<b>Expérimentation</b> : on conçoit', '<b>Observation</b> : on subit']
+])}
+`)}
+${S('Formules à reconnaître', R`
+${table(['Nom', 'Formule'], [
+  ['Modèle', '$Y = \\hat{y} + E,\\ \\hat{y}=M(p,u)$'],
+  ['Moindres carrés', '$\\hat{p} = (X^\\top X)^{-1} X^\\top Y$'],
+  ['Biais / variance', '$\\mathbb{E}\\{E\\}$ / $\\sigma^2 = \\text{Var}\\{E\\}$'],
+  ['Erreur', '$E \\sim \\mathcal{N}(0,\\sigma^2)$'],
+  ['Effet (2 niveaux)', '$\\overline{Y}_{+1} - \\overline{Y}_{-1}$'],
+  ['Screening', '$H_0: B=0$ vs $H_1: B\\neq0$']
+])}
+`)}
+${S('Vrai / Faux express', R`
+${table(['Affirmation', 'Verdict'], [
+  ['DoE = max d\'info, min d\'essais', '<b>VRAI</b>'],
+  ['Fisher, père du DoE (agronomie)', '<b>VRAI</b>'],
+  ['Repeated = essais indépendants', '<b>FAUX</b> : à moyenner'],
+  ['On corrige un biais en répétant', '<b>FAUX</b> : étalonner'],
+  ['Randomiser = perte de temps', '<b>FAUX</b> : neutralise $Z$'],
+  ['Une variable latente se contrôle', '<b>FAUX</b> : par définition non'],
+  ['Replicates → variance de l\'erreur', '<b>VRAI</b>']
+])}
+`)}
+${S('Les 11 étapes (dans l\'ordre)', R`
+<p>1 Objectifs · 2 Unités · 3 Réponse · 4 Variables (<b>Ishikawa 5M</b>) · 5 Pilotes · 6 Diagramme de flux · 7 Choix du plan · 8 Replicates · 9 <b>Randomiser</b> · 10 Méthode d'analyse · 11 Planning (<b>Gantt</b>).</p>
+`)}
+${S('Mots-clés & réflexes', R`
+<p><b>Ishikawa (5M)</b> = lister les variables · <b>Gantt</b> = planning/budget · <b>2 hasards</b> : $V$ (mesure), $B$ (paramètres).</p>
+${K(R`<b>Réflexes QCM</b> : « même unité remesurée » → <b>moyenner</b> · « ordre au hasard » → <b>randomisation</b> · « décalage constant » → <b>biais</b> · « quel facteur compte ? » → <b>screening</b> · « meilleur réglage ? » → <b>optimisation</b>.`)}
+`)}
+`
+  ]
 }
 
   };
